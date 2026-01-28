@@ -1,0 +1,185 @@
+services:
+  # ===========================================
+  # BACKEND API SERVICE
+  # ===========================================
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: randols-api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - FLASK_APP=api/app.py
+      - PYTHONPATH=/app
+      - SECRET_KEY=${SECRET_KEY:-randols-secret-key-change-in-production}
+      - MONGODB_URI=mongodb://mongo:27017/randols_marketing
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - CANVA_API_KEY=${CANVA_API_KEY}
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+      - FACEBOOK_ACCESS_TOKEN=${FACEBOOK_ACCESS_TOKEN}
+      - TIKTOK_ACCESS_TOKEN=${TIKTOK_ACCESS_TOKEN}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - ./backend:/app
+      - api_logs:/app/logs
+    networks:
+      - randols-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # ===========================================
+  # FRONTEND NEXT.JS SERVICE
+  # ===========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: randols-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_PUBLIC_API_URL=http://api:5000
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - randols-network
+    restart: unless-stopped
+
+  # ===========================================
+  # MONGODB DATABASE
+  # ===========================================
+  mongo:
+    image: mongo:7.0
+    container_name: randols-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=randols_marketing
+    volumes:
+      - mongo_data:/data/db
+      - ./deployment/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - randols-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ===========================================
+  # REDIS CACHE
+  # ===========================================
+  redis:
+    image: redis:7.2-alpine
+    container_name: randols-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - randols-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ===========================================
+  # NGINX REVERSE PROXY (Production)
+  # ===========================================
+  nginx:
+    image: nginx:alpine
+    container_name: randols-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deployment/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - randols-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # ===========================================
+  # MONITORING (Optional)
+  # ===========================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: randols-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - randols-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: randols-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - randols-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+# ===========================================
+# NETWORKS
+# ===========================================
+networks:
+  randols-network:
+    driver: bridge
+
+# ===========================================
+# VOLUMES
+# ===========================================
+volumes:
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+  api_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

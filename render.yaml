@@ -1,0 +1,257 @@
+# Randol's Agentic Social Media Marketing Platform
+# Render.com Blueprint Configuration
+# https://render.com/docs/blueprint-spec
+
+version: "1"
+
+previewsEnabled: true
+previewsExpireAfterDays: 7
+
+services:
+  # ============================================
+  # BACKEND API SERVICE
+  # ============================================
+  - type: web
+    name: randols-api
+    env: python
+    region: oregon
+    plan: standard
+    branch: main
+    rootDir: backend
+    buildCommand: |
+      pip install -r requirements.txt
+      python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger')"
+    startCommand: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT api.app:app
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        fromDatabase:
+          name: randols-mongodb
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: randols-redis
+          type: redis
+          property: connectionString
+      - key: INSTAGRAM_ACCESS_TOKEN
+        sync: false
+      - key: FACEBOOK_ACCESS_TOKEN
+        sync: false
+      - key: TIKTOK_ACCESS_TOKEN
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: GOOGLE_POSTS_API_KEY
+        sync: false
+      - key: WEATHER_API_KEY
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: CANVA_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "https://randols-dashboard.vercel.app,https://randols.com"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+
+  # ============================================
+  # BACKGROUND WORKER SERVICE
+  # ============================================
+  - type: worker
+    name: randols-worker
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m workers.scheduler_worker
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: WORKER_TYPE
+        value: scheduler
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        fromDatabase:
+          name: randols-mongodb
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: randols-redis
+          type: redis
+          property: connectionString
+      - key: INSTAGRAM_ACCESS_TOKEN
+        sync: false
+      - key: FACEBOOK_ACCESS_TOKEN
+        sync: false
+      - key: TIKTOK_ACCESS_TOKEN
+        sync: false
+
+  # ============================================
+  # REDIS CACHE SERVICE
+  # ============================================
+  - type: redis
+    name: randols-redis
+    region: oregon
+    plan: starter
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  # ============================================
+  # CRON JOBS
+  # ============================================
+  - type: cron
+    name: randols-daily-content
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 6 * * *"  # 6 AM daily
+    startCommand: python -m jobs.daily_content_generation
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: JOB_TYPE
+        value: daily_content
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        fromDatabase:
+          name: randols-mongodb
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: randols-redis
+          type: redis
+          property: connectionString
+
+  - type: cron
+    name: randols-analytics-sync
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 */4 * * *"  # Every 4 hours
+    startCommand: python -m jobs.analytics_sync
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: JOB_TYPE
+        value: analytics
+      - key: MONGODB_URI
+        fromDatabase:
+          name: randols-mongodb
+          property: connectionString
+      - key: INSTAGRAM_ACCESS_TOKEN
+        sync: false
+      - key: FACEBOOK_ACCESS_TOKEN
+        sync: false
+
+  - type: cron
+    name: randols-weekly-report
+    env: python
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 8 * * 1"  # Monday 8 AM
+    startCommand: python -m jobs.weekly_report
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: JOB_TYPE
+        value: weekly_report
+      - key: MONGODB_URI
+        fromDatabase:
+          name: randols-mongodb
+          property: connectionString
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+
+databases:
+  # ============================================
+  # MONGODB DATABASE (Atlas recommended for production)
+  # ============================================
+  - name: randols-mongodb
+    plan: starter
+    databaseName: randols_marketing
+    # Note: For production, use MongoDB Atlas with connection string in env var
+    # This is a placeholder for development/staging
+
+envVarGroups:
+  # ============================================
+  # SHARED ENVIRONMENT VARIABLES
+  # ============================================
+  - name: randols-shared
+    envVars:
+      - key: APP_NAME
+        value: "Randol's Marketing Platform"
+      - key: RESTAURANT_NAME
+        value: "Randol's Restaurant"
+      - key: RESTAURANT_LOCATION
+        value: "Breaux Bridge, Louisiana"
+      - key: RESTAURANT_PHONE
+        value: "(337) 332-4648"
+      - key: TIMEZONE
+        value: "America/Chicago"
+      - key: DEFAULT_LANGUAGE
+        value: "en"
+      - key: BRAND_PRIMARY_COLOR
+        value: "#C0152F"
+      - key: BRAND_SECONDARY_COLOR
+        value: "#A84B2F"
+      - key: BRAND_ACCENT_COLOR
+        value: "#32808D"
+
+# ============================================
+# DEPLOYMENT NOTES
+# ============================================
+# 
+# Prerequisites:
+# 1. Create MongoDB Atlas cluster and get connection string
+# 2. Set up social media API credentials:
+#    - Instagram/Facebook: Meta Developer Portal
+#    - TikTok: TikTok Developer Portal
+#    - YouTube: Google Cloud Console
+#    - Google Business: Google My Business API
+# 3. Create OpenAI API key
+# 4. Optional: ElevenLabs, Canva API keys for media
+#
+# Post-Deployment:
+# 1. Update CORS_ORIGINS with your frontend domain
+# 2. Set up webhook URLs in social media platforms
+# 3. Configure Slack/Discord webhooks for alerts
+# 4. Run initial data seeding if needed
+#
+# Scaling:
+# - Upgrade API service plan for higher traffic
+# - Consider dedicated MongoDB Atlas cluster
+# - Add more workers for content processing
+#
+# Monitoring:
+# - Set up Render notifications
+# - Configure Sentry for error tracking
+# - Enable log aggregation
