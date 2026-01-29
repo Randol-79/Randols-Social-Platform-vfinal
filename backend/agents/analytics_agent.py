@@ -345,13 +345,7 @@ class AnalyticsAgent:
 
     def _generate_recommendations(self, analysis: Dict) -> List[Dict]:
         """Generate actionable recommendations"""
-        recommendations = []
-
-    async def generate_recommendations(self) -> List[Dict]:
-        """Public method to generate recommendations based on latest analysis"""
-        analysis = await self.analyze_performance()
-        # Return the recommendations (ensure it's a list)
-        return analysis.get("recommendations", [])
+        recommendations: List[Dict] = []
 
         overall = analysis.get("overall_performance", {})
         platforms = analysis.get("platform_analysis", {})
@@ -385,11 +379,9 @@ class AnalyticsAgent:
                         "title": f"Improve {platform.title()} Performance",
                         "description": f"{platform.title()} is {abs(data['vs_baseline'])}% below baseline",
                         "actions": [
-                            f"Post more {data['best_content_type']} content on {platform}",
+                            f"Post more {data.get('best_content_type', 'top')} content on {platform}",
                             f"Optimize posting times for {platform}",
-                            f"Increase video content on {platform}"
-                            if platform in ["tiktok", "instagram"]
-                            else f"Increase engagement with community on {platform}",
+                            "Increase video content on {platform}" if platform in ["tiktok", "instagram"] else f"Increase engagement with community on {platform}",
                         ],
                     }
                 )
@@ -430,6 +422,14 @@ class AnalyticsAgent:
                 )
 
         return recommendations
+
+    async def generate_recommendations(self) -> List[Dict]:
+        """Public method to generate recommendations based on latest analysis"""
+        analysis = await self.analyze_performance()
+        if not analysis or "error" in analysis:
+            return []
+        # Use recommendations computed during analysis if present, otherwise generate now
+        return analysis.get("recommendations") or self._generate_recommendations(analysis)
 
     async def get_platform_analytics(self) -> Dict[str, Any]:
         """Get current platform analytics"""
