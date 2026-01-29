@@ -22,10 +22,14 @@ try:
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
     from opentelemetry.sdk.metrics import MeterProvider
-    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, ConsoleMetricExporter
+    from opentelemetry.sdk.metrics.export import (
+        PeriodicExportingMetricReader,
+        ConsoleMetricExporter,
+    )
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.semconv.resource import ResourceAttributes
     from opentelemetry.trace import Status, StatusCode
+
     OTEL_AVAILABLE = True
 except ImportError:
     logger.info("OpenTelemetry not installed, using fallback telemetry")
@@ -35,6 +39,7 @@ OTLP_AVAILABLE = False
 try:
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+
     OTLP_AVAILABLE = True
 except ImportError:
     pass
@@ -67,10 +72,7 @@ class FallbackSpan:
         duration = (time.time() - self.start_time) * 1000
         logger.debug(
             f"Span completed: {self.name}",
-            extra={
-                "duration_ms": round(duration, 2),
-                **self.attributes
-            }
+            extra={"duration_ms": round(duration, 2), **self.attributes},
         )
         return False
 
@@ -163,11 +165,13 @@ class Telemetry:
             return
 
         # Create resource
-        resource = Resource.create({
-            ResourceAttributes.SERVICE_NAME: self.service_name,
-            ResourceAttributes.SERVICE_VERSION: "1.0.0",
-            "deployment.environment": os.getenv("FLASK_ENV", "development")
-        })
+        resource = Resource.create(
+            {
+                ResourceAttributes.SERVICE_NAME: self.service_name,
+                ResourceAttributes.SERVICE_VERSION: "1.0.0",
+                "deployment.environment": os.getenv("FLASK_ENV", "development"),
+            }
+        )
 
         # Setup tracer
         tracer_provider = TracerProvider(resource=resource)
@@ -182,9 +186,7 @@ class Telemetry:
         else:
             # Use console exporter for development (only if verbose logging)
             if os.getenv("VERBOSE_LOGGING", "").lower() == "true":
-                tracer_provider.add_span_processor(
-                    BatchSpanProcessor(ConsoleSpanExporter())
-                )
+                tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
         trace.set_tracer_provider(tracer_provider)
         self._tracer = trace.get_tracer(self.service_name)
@@ -249,6 +251,7 @@ def get_meter():
 
 # Convenience decorators
 
+
 def traced(name: Optional[str] = None, attributes: Optional[Dict] = None):
     """
     Decorator to trace a function.
@@ -258,6 +261,7 @@ def traced(name: Optional[str] = None, attributes: Optional[Dict] = None):
         def my_function():
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         span_name = name or f"{func.__module__}.{func.__name__}"
 
@@ -298,6 +302,7 @@ def traced(name: Optional[str] = None, attributes: Optional[Dict] = None):
                     raise
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return wrapper
@@ -314,12 +319,11 @@ def timed(metric_name: str, unit: str = "ms"):
         def generate_content():
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         meter = get_meter()
         histogram = meter.create_histogram(
-            metric_name,
-            description=f"Duration of {func.__name__}",
-            unit=unit
+            metric_name, description=f"Duration of {func.__name__}", unit=unit
         )
 
         @wraps(func)
@@ -341,6 +345,7 @@ def timed(metric_name: str, unit: str = "ms"):
                 histogram.record(duration, {"function": func.__name__})
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return wrapper
@@ -368,65 +373,43 @@ class MarketingMetrics:
 
         # Content metrics
         self.content_generated = meter.create_counter(
-            "content_generated_total",
-            description="Total content items generated",
-            unit="1"
+            "content_generated_total", description="Total content items generated", unit="1"
         )
         self.content_approved = meter.create_counter(
-            "content_approved_total",
-            description="Total content items approved",
-            unit="1"
+            "content_approved_total", description="Total content items approved", unit="1"
         )
         self.content_rejected = meter.create_counter(
-            "content_rejected_total",
-            description="Total content items rejected",
-            unit="1"
+            "content_rejected_total", description="Total content items rejected", unit="1"
         )
 
         # LLM metrics
         self.llm_requests = meter.create_counter(
-            "llm_requests_total",
-            description="Total LLM API requests",
-            unit="1"
+            "llm_requests_total", description="Total LLM API requests", unit="1"
         )
         self.llm_tokens = meter.create_counter(
-            "llm_tokens_total",
-            description="Total tokens used",
-            unit="1"
+            "llm_tokens_total", description="Total tokens used", unit="1"
         )
         self.llm_cost = meter.create_counter(
-            "llm_cost_total",
-            description="Total LLM cost in USD cents",
-            unit="cents"
+            "llm_cost_total", description="Total LLM cost in USD cents", unit="cents"
         )
         self.llm_latency = meter.create_histogram(
-            "llm_request_duration",
-            description="LLM request duration",
-            unit="ms"
+            "llm_request_duration", description="LLM request duration", unit="ms"
         )
 
         # Posting metrics
         self.posts_scheduled = meter.create_counter(
-            "posts_scheduled_total",
-            description="Total posts scheduled",
-            unit="1"
+            "posts_scheduled_total", description="Total posts scheduled", unit="1"
         )
         self.posts_published = meter.create_counter(
-            "posts_published_total",
-            description="Total posts published",
-            unit="1"
+            "posts_published_total", description="Total posts published", unit="1"
         )
         self.posts_failed = meter.create_counter(
-            "posts_failed_total",
-            description="Total posts that failed to publish",
-            unit="1"
+            "posts_failed_total", description="Total posts that failed to publish", unit="1"
         )
 
         # Agent metrics
         self.agent_active = meter.create_up_down_counter(
-            "agents_active",
-            description="Number of active agents",
-            unit="1"
+            "agents_active", description="Number of active agents", unit="1"
         )
 
         self._initialized = True

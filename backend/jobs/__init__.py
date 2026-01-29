@@ -7,8 +7,4 @@ from .daily_content_generation import DailyContentJob
 from .analytics_sync import AnalyticsSyncJob
 from .weekly_report import WeeklyReportJob
 
-__all__ = [
-    'DailyContentJob',
-    'AnalyticsSyncJob', 
-    'WeeklyReportJob'
-]
+__all__ = ["DailyContentJob", "AnalyticsSyncJob", "WeeklyReportJob"]

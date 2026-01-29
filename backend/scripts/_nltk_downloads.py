@@ -1,4 +1,5 @@
 import nltk
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-print('NLTK downloads complete')
+
+nltk.download("punkt")
+nltk.download("averaged_perceptron_tagger")
+print("NLTK downloads complete")

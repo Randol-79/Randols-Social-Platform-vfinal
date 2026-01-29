@@ -7,51 +7,52 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import random
 
+
 class PromptTemplates:
     """
     Collection of prompt templates for AI content generation.
     Each template is optimized for specific content types and platforms.
     """
-    
+
     def __init__(self):
         self.specials_rotation = self._load_specials()
         self.storytelling_themes = self._load_storytelling_themes()
-        
+
     def _load_specials(self) -> Dict[str, list]:
         """Load rotating specials by day"""
         return {
-            'monday': ['Crawfish Étouffée', 'Boudin Plate', 'Monday Gumbo Special'],
-            'tuesday': ['Blackened Catfish', 'Shrimp Po-Boy', 'Crawfish Bisque'],
-            'wednesday': ['Fried Seafood Platter', 'Crawfish Pasta', 'Chicken & Sausage Gumbo'],
-            'thursday': ['Gulf Shrimp Étouffée', 'Soft Shell Crab', 'Seafood Gumbo'],
-            'friday': ['Boiled Crawfish', 'Fried Catfish Platter', 'Seafood Combo'],
-            'saturday': ['Weekend Crawfish Boil', 'Prime Rib Special', 'Surf & Turf'],
-            'sunday': ['Sunday Brunch Buffet', 'Family Platter', 'Sunday Gumbo']
+            "monday": ["Crawfish Étouffée", "Boudin Plate", "Monday Gumbo Special"],
+            "tuesday": ["Blackened Catfish", "Shrimp Po-Boy", "Crawfish Bisque"],
+            "wednesday": ["Fried Seafood Platter", "Crawfish Pasta", "Chicken & Sausage Gumbo"],
+            "thursday": ["Gulf Shrimp Étouffée", "Soft Shell Crab", "Seafood Gumbo"],
+            "friday": ["Boiled Crawfish", "Fried Catfish Platter", "Seafood Combo"],
+            "saturday": ["Weekend Crawfish Boil", "Prime Rib Special", "Surf & Turf"],
+            "sunday": ["Sunday Brunch Buffet", "Family Platter", "Sunday Gumbo"],
         }
-        
+
     def _load_storytelling_themes(self) -> list:
         """Load storytelling themes for content"""
         return [
-            'family_recipe',
-            'local_fishermen',
-            'kitchen_secrets',
-            'music_tradition',
-            'community_stories',
-            'seasonal_traditions',
-            'chef_spotlight',
-            'customer_memories'
+            "family_recipe",
+            "local_fishermen",
+            "kitchen_secrets",
+            "music_tradition",
+            "community_stories",
+            "seasonal_traditions",
+            "chef_spotlight",
+            "customer_memories",
         ]
-    
+
     # ========================================
     # MORNING CONTENT TEMPLATES
     # ========================================
-    
+
     def get_morning_greeting_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for morning greeting post"""
-        day = context.get('day_of_week', datetime.now().strftime('%A'))
-        weather = context.get('weather', {}).get('condition', 'beautiful')
+        day = context.get("day_of_week", datetime.now().strftime("%A"))
+        weather = context.get("weather", {}).get("condition", "beautiful")
         special = self._get_daily_special(day.lower())
-        
+
         return f"""
 Create a warm morning greeting post for Randol's Restaurant.
 
@@ -92,13 +93,13 @@ Platform: Instagram Stories
     # ========================================
     # DAILY SPECIAL TEMPLATES
     # ========================================
-    
+
     def get_daily_special_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for daily special promotion"""
-        day = context.get('day_of_week', datetime.now().strftime('%A'))
-        special = context.get('special_item') or self._get_daily_special(day.lower())
-        weather = context.get('weather', {}).get('condition', 'pleasant')
-        
+        day = context.get("day_of_week", datetime.now().strftime("%A"))
+        special = context.get("special_item") or self._get_daily_special(day.lower())
+        weather = context.get("weather", {}).get("condition", "pleasant")
+
         return f"""
 Create an appetizing social media post for today's special at Randol's.
 
@@ -126,8 +127,8 @@ Platforms: Instagram, Facebook, Twitter
 
     def get_special_video_script_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for video script about daily special"""
-        special = context.get('special_item', 'Crawfish Étouffée')
-        
+        special = context.get("special_item", "Crawfish Étouffée")
+
         return f"""
 Write a 30-second video script showcasing {special} at Randol's.
 
@@ -152,27 +153,29 @@ VOICE: "dialogue"
     # ========================================
     # CRAWFISH CONTENT TEMPLATES
     # ========================================
-    
+
     def get_crawfish_content_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for crawfish-specific content"""
-        content_angle = random.choice([
-            'fresh_arrival',
-            'boiling_process', 
-            'eating_tips',
-            'local_sourcing',
-            'season_update',
-            'family_tradition'
-        ])
-        
+        content_angle = random.choice(
+            [
+                "fresh_arrival",
+                "boiling_process",
+                "eating_tips",
+                "local_sourcing",
+                "season_update",
+                "family_tradition",
+            ]
+        )
+
         angles = {
-            'fresh_arrival': "Focus on fresh crawfish arriving today - the excitement, the quality",
-            'boiling_process': "Show/describe our secret boiling process and seasoning",
-            'eating_tips': "Share tips for eating crawfish like a local (educational but fun)",
-            'local_sourcing': "Tell the story of where our crawfish come from (local waters)",
-            'season_update': "Update on crawfish season - availability, size, quality",
-            'family_tradition': "Connect crawfish to family gatherings and Louisiana tradition"
+            "fresh_arrival": "Focus on fresh crawfish arriving today - the excitement, the quality",
+            "boiling_process": "Show/describe our secret boiling process and seasoning",
+            "eating_tips": "Share tips for eating crawfish like a local (educational but fun)",
+            "local_sourcing": "Tell the story of where our crawfish come from (local waters)",
+            "season_update": "Update on crawfish season - availability, size, quality",
+            "family_tradition": "Connect crawfish to family gatherings and Louisiana tradition",
         }
-        
+
         return f"""
 Create engaging crawfish content for Randol's social media.
 
@@ -221,13 +224,13 @@ Platform: Instagram Carousel / Facebook
     # ========================================
     # EVENT & MUSIC TEMPLATES
     # ========================================
-    
+
     def get_event_promotion_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for event promotion"""
-        event = context.get('event', {})
-        event_name = event.get('name', 'Zydeco Night')
-        event_date = event.get('date', 'Tonight')
-        
+        event = context.get("event", {})
+        event_name = event.get("name", "Zydeco Night")
+        event_date = event.get("date", "Tonight")
+
         return f"""
 Create an exciting event promotion for Randol's:
 
@@ -249,8 +252,8 @@ Include: Time, what to expect, why it's special
 
     def get_live_music_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for live music content"""
-        band = context.get('band_name', 'tonight\'s band')
-        
+        band = context.get("band_name", "tonight's band")
+
         return f"""
 Promote live zydeco music at Randol's tonight.
 
@@ -276,22 +279,22 @@ Length: 60-100 words
     # ========================================
     # STORYTELLING TEMPLATES
     # ========================================
-    
+
     def get_storytelling_prompt(self, context: Dict[str, Any]) -> str:
         """Generate prompt for storytelling content"""
-        theme = context.get('theme') or random.choice(self.storytelling_themes)
-        
+        theme = context.get("theme") or random.choice(self.storytelling_themes)
+
         themes_detail = {
-            'family_recipe': "Tell the story of a specific family recipe - who created it, how it's been passed down",
-            'local_fishermen': "Share about the local fishermen who supply our fresh seafood",
-            'kitchen_secrets': "Reveal a small kitchen secret or technique (but keep some mystery!)",
-            'music_tradition': "Connect our music tradition to the history of zydeco",
-            'community_stories': "Share a heartwarming customer or community story",
-            'seasonal_traditions': "Explain a Louisiana seasonal tradition",
-            'chef_spotlight': "Highlight a chef or kitchen staff member",
-            'customer_memories': "Share a memorable customer experience"
+            "family_recipe": "Tell the story of a specific family recipe - who created it, how it's been passed down",
+            "local_fishermen": "Share about the local fishermen who supply our fresh seafood",
+            "kitchen_secrets": "Reveal a small kitchen secret or technique (but keep some mystery!)",
+            "music_tradition": "Connect our music tradition to the history of zydeco",
+            "community_stories": "Share a heartwarming customer or community story",
+            "seasonal_traditions": "Explain a Louisiana seasonal tradition",
+            "chef_spotlight": "Highlight a chef or kitchen staff member",
+            "customer_memories": "Share a memorable customer experience",
         }
-        
+
         return f"""
 Create a storytelling post for Randol's social media.
 
@@ -340,11 +343,11 @@ Length: 150-200 words
     # ========================================
     # PLATFORM-SPECIFIC TEMPLATES
     # ========================================
-    
+
     def get_instagram_reel_script(self, context: Dict[str, Any]) -> str:
         """Generate Instagram Reel script"""
-        topic = context.get('topic', 'daily_special')
-        
+        topic = context.get("topic", "daily_special")
+
         return f"""
 Write an Instagram Reel script about: {topic}
 
@@ -394,8 +397,8 @@ Include: Hook, content flow, text overlays, music suggestion
 
     def get_youtube_description_prompt(self, context: Dict[str, Any]) -> str:
         """Generate YouTube video description"""
-        video_title = context.get('title', 'A Day at Randol\'s')
-        
+        video_title = context.get("title", "A Day at Randol's")
+
         return f"""
 Write a YouTube description for: {video_title}
 
@@ -421,12 +424,12 @@ Length: 200-400 words
     # ========================================
     # EMERGENCY & SPECIAL TEMPLATES
     # ========================================
-    
+
     def get_emergency_content_prompt(self, context: Dict[str, Any]) -> str:
         """Generate emergency/urgent content"""
-        situation = context.get('situation', 'general_update')
-        tone = context.get('tone', 'professional and reassuring')
-        
+        situation = context.get("situation", "general_update")
+        tone = context.get("tone", "professional and reassuring")
+
         return f"""
 Create appropriate emergency/urgent content for Randol's.
 
@@ -451,9 +454,9 @@ Length: 50-150 words (clear and direct)
 
     def get_closure_announcement_prompt(self, context: Dict[str, Any]) -> str:
         """Generate closure announcement (weather, holiday, etc.)"""
-        reason = context.get('reason', 'weather')
-        duration = context.get('duration', 'today')
-        
+        reason = context.get("reason", "weather")
+        duration = context.get("duration", "today")
+
         return f"""
 Announce temporary closure of Randol's.
 
@@ -474,24 +477,24 @@ Length: 50-100 words
     # ========================================
     # HELPER METHODS
     # ========================================
-    
+
     def _get_daily_special(self, day: str) -> str:
         """Get a daily special for the given day"""
-        specials = self.specials_rotation.get(day, self.specials_rotation['monday'])
+        specials = self.specials_rotation.get(day, self.specials_rotation["monday"])
         return random.choice(specials)
-    
+
     def get_hashtag_suggestions(self, content_type: str) -> list:
         """Get hashtag suggestions for content type"""
-        base = ['#RandolsRestaurant', '#BreauxBridge', '#CajunFood', '#Louisiana']
-        
+        base = ["#RandolsRestaurant", "#BreauxBridge", "#CajunFood", "#Louisiana"]
+
         type_specific = {
-            'crawfish': ['#CrawfishBoil', '#Mudbugs', '#CrawfishSeason'],
-            'music': ['#ZydecoMusic', '#LiveMusic', '#CajunMusic'],
-            'daily_special': ['#DailySpecial', '#LouisianaEats', '#CajunCooking'],
-            'event': ['#LaissezLesBonTempsRouler', '#LouisianaMusic', '#CajunDancing'],
-            'story': ['#CajunHeritage', '#LouisianaProud', '#FamilyTradition']
+            "crawfish": ["#CrawfishBoil", "#Mudbugs", "#CrawfishSeason"],
+            "music": ["#ZydecoMusic", "#LiveMusic", "#CajunMusic"],
+            "daily_special": ["#DailySpecial", "#LouisianaEats", "#CajunCooking"],
+            "event": ["#LaissezLesBonTempsRouler", "#LouisianaMusic", "#CajunDancing"],
+            "story": ["#CajunHeritage", "#LouisianaProud", "#FamilyTradition"],
         }
-        
+
         return base + type_specific.get(content_type, [])
 
 

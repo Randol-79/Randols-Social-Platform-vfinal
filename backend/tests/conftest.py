@@ -28,8 +28,9 @@ def event_loop():
 def app():
     """Create Flask app for testing"""
     from api.app import app
-    app.config['TESTING'] = True
-    app.config['DEBUG'] = False
+
+    app.config["TESTING"] = True
+    app.config["DEBUG"] = False
     return app
 
 
@@ -44,15 +45,15 @@ def client(app):
 def mock_openai():
     """Mock OpenAI client"""
     from unittest.mock import Mock, AsyncMock
-    
+
     mock_response = Mock()
     mock_response.choices = [Mock()]
     mock_response.choices[0].message = Mock()
     mock_response.choices[0].message.content = "Test Cajun content, cher!"
-    
+
     mock_client = Mock()
     mock_client.chat.completions.acreate = AsyncMock(return_value=mock_response)
-    
+
     return mock_client
 
 
@@ -60,13 +61,13 @@ def mock_openai():
 def sample_post_data():
     """Sample post data for testing"""
     return {
-        'id': 'test_post_001',
-        'type': 'daily_special',
-        'text': "Try our fresh Gulf Shrimp Étouffée today! Made with love, cher.",
-        'platforms': ['instagram', 'facebook'],
-        'hashtags': ['#CajunFood', '#Louisiana', '#BreauxBridge'],
-        'scheduled_time': '2024-01-15T12:00:00',
-        'status': 'scheduled'
+        "id": "test_post_001",
+        "type": "daily_special",
+        "text": "Try our fresh Gulf Shrimp Étouffée today! Made with love, cher.",
+        "platforms": ["instagram", "facebook"],
+        "hashtags": ["#CajunFood", "#Louisiana", "#BreauxBridge"],
+        "scheduled_time": "2024-01-15T12:00:00",
+        "status": "scheduled",
     }
 
 
@@ -74,31 +75,31 @@ def sample_post_data():
 def sample_analytics_data():
     """Sample analytics data for testing"""
     return {
-        'instagram': {
-            'impressions': 1500,
-            'reach': 1200,
-            'engagement': 180,
-            'likes': 150,
-            'comments': 20,
-            'saves': 10
+        "instagram": {
+            "impressions": 1500,
+            "reach": 1200,
+            "engagement": 180,
+            "likes": 150,
+            "comments": 20,
+            "saves": 10,
         },
-        'facebook': {
-            'impressions': 2000,
-            'reach': 1600,
-            'engagement': 220,
-            'reactions': 180,
-            'comments': 25,
-            'shares': 15
-        }
+        "facebook": {
+            "impressions": 2000,
+            "reach": 1600,
+            "engagement": 220,
+            "reactions": 180,
+            "comments": 25,
+            "shares": 15,
+        },
     }
 
 
 # Environment setup for tests
 def pytest_configure(config):
     """Configure test environment"""
-    os.environ.setdefault('FLASK_ENV', 'testing')
-    os.environ.setdefault('MOCK_SOCIAL_POSTS', 'true')
-    os.environ.setdefault('DEMO_MODE', 'true')
+    os.environ.setdefault("FLASK_ENV", "testing")
+    os.environ.setdefault("MOCK_SOCIAL_POSTS", "true")
+    os.environ.setdefault("DEMO_MODE", "true")
 
 
 def pytest_collection_modifyitems(config, items):

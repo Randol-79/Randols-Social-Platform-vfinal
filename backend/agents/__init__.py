@@ -15,30 +15,26 @@ from .platform_agents import (
     FacebookAgent,
     TikTokAgent,
     YouTubeAgent,
-    GooglePostsAgent
+    GooglePostsAgent,
 )
 
 __all__ = [
     # Core Orchestration
-    'MasterOrchestratorAgent',
-    
+    "MasterOrchestratorAgent",
     # Content Pipeline
-    'ContentGeneratorAgent',
-    'BrandVoiceGuardianAgent',
-    
+    "ContentGeneratorAgent",
+    "BrandVoiceGuardianAgent",
     # Analytics & Optimization
-    'AnalyticsAgent',
-    'FeedbackLoopAgent',
-    
+    "AnalyticsAgent",
+    "FeedbackLoopAgent",
     # Scheduling
-    'SchedulerAgent',
-    'ContentQueue',
-    
+    "SchedulerAgent",
+    "ContentQueue",
     # Platform-Specific Agents
-    'PlatformAgentManager',
-    'InstagramAgent',
-    'FacebookAgent',
-    'TikTokAgent',
-    'YouTubeAgent',
-    'GooglePostsAgent'
+    "PlatformAgentManager",
+    "InstagramAgent",
+    "FacebookAgent",
+    "TikTokAgent",
+    "YouTubeAgent",
+    "GooglePostsAgent",
 ]

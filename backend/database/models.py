@@ -13,6 +13,7 @@ import json
 
 class PyObjectId(ObjectId):
     """Custom ObjectId for Pydantic compatibility"""
+
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -78,8 +79,10 @@ class AgentStatus(str, Enum):
 # Content Models
 # ========================
 
+
 class ContentMedia(BaseModel):
     """Media attachment for content"""
+
     type: str = Field(..., description="Media type: image, video, carousel")
     url: Optional[str] = None
     thumbnail_url: Optional[str] = None
@@ -91,6 +94,7 @@ class ContentMedia(BaseModel):
 
 class ContentMetrics(BaseModel):
     """Performance metrics for content"""
+
     impressions: int = 0
     reach: int = 0
     likes: int = 0
@@ -100,7 +104,7 @@ class ContentMetrics(BaseModel):
     clicks: int = 0
     engagement_rate: float = 0.0
     sentiment_score: Optional[float] = None
-    
+
     def calculate_engagement_rate(self, reach: int) -> float:
         if reach == 0:
             return 0.0
@@ -110,6 +114,7 @@ class ContentMetrics(BaseModel):
 
 class ContentValidation(BaseModel):
     """Validation results from Brand Voice Guardian"""
+
     authenticity_score: float = Field(ge=0.0, le=1.0)
     tone_compliance: bool = True
     cultural_appropriateness: bool = True
@@ -122,19 +127,21 @@ class ContentValidation(BaseModel):
 
 class ContentBase(BaseModel):
     """Base content model"""
+
     text: str = Field(..., min_length=1, max_length=10000)
     content_type: ContentType
     platforms: List[Platform]
     hashtags: List[str] = []
     media: List[ContentMedia] = []
-    
-    @validator('hashtags')
+
+    @validator("hashtags")
     def validate_hashtags(cls, v):
-        return [tag if tag.startswith('#') else f'#{tag}' for tag in v]
+        return [tag if tag.startswith("#") else f"#{tag}" for tag in v]
 
 
 class ContentCreate(ContentBase):
     """Content creation request"""
+
     context: Optional[Dict[str, Any]] = {}
     schedule_time: Optional[datetime] = None
     priority: str = "normal"  # high, normal, low
@@ -142,35 +149,34 @@ class ContentCreate(ContentBase):
 
 class ContentInDB(ContentBase):
     """Content document in MongoDB"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     status: ContentStatus = ContentStatus.DRAFT
     validation: Optional[ContentValidation] = None
     metrics: Dict[str, ContentMetrics] = {}  # Per-platform metrics
     context: Dict[str, Any] = {}
-    
+
     # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     scheduled_for: Optional[datetime] = None
     published_at: Optional[datetime] = None
-    
+
     # Tracking
     created_by: str = "content_generator"
     approved_by: Optional[str] = None
     version: int = 1
     parent_id: Optional[str] = None  # For A/B testing variants
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
-        json_encoders = {
-            ObjectId: str,
-            datetime: lambda v: v.isoformat()
-        }
+        json_encoders = {ObjectId: str, datetime: lambda v: v.isoformat()}
 
 
 class ContentResponse(ContentBase):
     """Content API response"""
+
     id: str
     status: ContentStatus
     validation: Optional[ContentValidation] = None
@@ -184,25 +190,27 @@ class ContentResponse(ContentBase):
 # Schedule Models
 # ========================
 
+
 class ScheduledPost(BaseModel):
     """Scheduled post document"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     content_id: str
     platform: Platform
     scheduled_time: datetime
     status: str = "pending"  # pending, processing, published, failed
-    
+
     # Publishing details
     post_id: Optional[str] = None  # Platform's post ID after publishing
     published_at: Optional[datetime] = None
     error_message: Optional[str] = None
     retry_count: int = 0
     max_retries: int = 3
-    
+
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
     priority: str = "normal"
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -211,16 +219,17 @@ class ScheduledPost(BaseModel):
 
 class ContentCalendar(BaseModel):
     """Daily content calendar"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     date: str  # YYYY-MM-DD
     scheduled_posts: List[ScheduledPost] = []
     total_posts: int = 0
     platforms_summary: Dict[str, int] = {}  # Platform -> post count
     status: str = "active"  # active, paused, completed
-    
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -231,54 +240,57 @@ class ContentCalendar(BaseModel):
 # Analytics Models
 # ========================
 
+
 class PlatformAnalytics(BaseModel):
     """Platform-level analytics"""
+
     platform: Platform
     period_start: datetime
     period_end: datetime
-    
+
     # Aggregated metrics
     total_posts: int = 0
     total_impressions: int = 0
     total_reach: int = 0
     total_engagement: int = 0
     avg_engagement_rate: float = 0.0
-    
+
     # Top performers
     top_posts: List[str] = []  # Content IDs
     best_posting_time: Optional[str] = None
     best_content_type: Optional[str] = None
-    
+
     # Growth
     follower_count: int = 0
     follower_growth: float = 0.0
-    
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class DailyAnalytics(BaseModel):
     """Daily analytics summary"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     date: str  # YYYY-MM-DD
-    
+
     platforms: Dict[str, PlatformAnalytics] = {}
-    
+
     # Aggregated totals
     total_posts: int = 0
     total_impressions: int = 0
     total_reach: int = 0
     total_engagement: int = 0
     overall_engagement_rate: float = 0.0
-    
+
     # Performance grade
     performance_grade: str = "B"
     trend: str = "stable"  # improving, stable, declining
-    
+
     # Content type breakdown
     content_type_performance: Dict[str, float] = {}
-    
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -287,34 +299,35 @@ class DailyAnalytics(BaseModel):
 
 class WeeklyReport(BaseModel):
     """Weekly performance report"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     week_start: str  # YYYY-MM-DD
     week_end: str
-    
+
     # Summary metrics
     total_posts: int = 0
     total_impressions: int = 0
     total_reach: int = 0
     total_engagement: int = 0
     avg_engagement_rate: float = 0.0
-    
+
     # Week-over-week comparison
     posts_vs_last_week: float = 0.0
     engagement_vs_last_week: float = 0.0
     reach_vs_last_week: float = 0.0
-    
+
     # Performance breakdown
     platform_performance: Dict[str, Dict] = {}
     content_type_performance: Dict[str, Dict] = {}
     best_performing_posts: List[Dict] = []
-    
+
     # AI recommendations
     recommendations: List[Dict] = []
-    
+
     # Report metadata
     generated_at: datetime = Field(default_factory=datetime.utcnow)
     sent_to: List[str] = []
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -325,8 +338,10 @@ class WeeklyReport(BaseModel):
 # Agent Models
 # ========================
 
+
 class AgentLog(BaseModel):
     """Agent activity log entry"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     agent_name: str
     action: str
@@ -334,7 +349,7 @@ class AgentLog(BaseModel):
     details: Dict[str, Any] = {}
     duration_ms: Optional[int] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -343,27 +358,28 @@ class AgentLog(BaseModel):
 
 class AgentState(BaseModel):
     """Agent state document"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     agent_name: str
     status: AgentStatus = AgentStatus.ACTIVE
     health: str = "good"  # good, degraded, unhealthy
-    
+
     # Performance
     actions_today: int = 0
     errors_today: int = 0
     success_rate: float = 1.0
     avg_response_time_ms: float = 0.0
-    
+
     # State data
     last_action: Optional[str] = None
     last_action_time: Optional[datetime] = None
     current_task: Optional[str] = None
-    
+
     # Configuration
     config: Dict[str, Any] = {}
-    
+
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -374,36 +390,38 @@ class AgentState(BaseModel):
 # A/B Testing Models
 # ========================
 
+
 class ABTest(BaseModel):
     """A/B test document"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     name: str
     description: Optional[str] = None
-    
+
     # Test configuration
     test_type: str  # content_style, posting_time, hashtag_strategy
     variable: str
     hypothesis: Optional[str] = None
-    
+
     # Variants
     control_content_ids: List[str] = []
     variant_content_ids: List[str] = []
-    
+
     # Results
     control_metrics: Optional[ContentMetrics] = None
     variant_metrics: Optional[ContentMetrics] = None
     winner: Optional[str] = None  # control, variant, inconclusive
     statistical_significance: Optional[float] = None
-    
+
     # Timeline
     status: str = "draft"  # draft, active, completed, cancelled
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     duration_days: int = 7
-    
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -414,17 +432,19 @@ class ABTest(BaseModel):
 # System Models
 # ========================
 
+
 class SystemConfig(BaseModel):
     """System configuration document"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     key: str
     value: Any
     description: Optional[str] = None
     category: str = "general"
-    
+
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     updated_by: str = "system"
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -433,19 +453,20 @@ class SystemConfig(BaseModel):
 
 class AuditLog(BaseModel):
     """Audit log for system changes"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     action: str
     entity_type: str  # content, schedule, config, agent
     entity_id: str
-    
+
     changes: Dict[str, Any] = {}
     previous_state: Optional[Dict[str, Any]] = None
     new_state: Optional[Dict[str, Any]] = None
-    
+
     user: str = "system"
     ip_address: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -454,16 +475,17 @@ class AuditLog(BaseModel):
 
 class EmergencyOverride(BaseModel):
     """Emergency override record"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     reason: str
     message: Optional[str] = None
     platforms: List[Platform] = []
-    
+
     # Actions taken
     paused_posts: List[str] = []
     emergency_content_id: Optional[str] = None
     notifications_sent: List[str] = []
-    
+
     # Status
     status: str = "active"  # active, resolved
     activated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -471,7 +493,7 @@ class EmergencyOverride(BaseModel):
     resolved_at: Optional[datetime] = None
     resolved_by: Optional[str] = None
     resolution_notes: Optional[str] = None
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -482,26 +504,28 @@ class EmergencyOverride(BaseModel):
 # Notification Models
 # ========================
 
+
 class Notification(BaseModel):
     """System notification"""
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     type: str  # alert, info, warning, error, success
     title: str
     message: str
-    
+
     # Targeting
     channels: List[str] = ["dashboard"]  # dashboard, slack, email, discord
     recipients: List[str] = []
-    
+
     # Status
     read: bool = False
     sent_at: datetime = Field(default_factory=datetime.utcnow)
     read_at: Optional[datetime] = None
-    
+
     # Related entity
     entity_type: Optional[str] = None
     entity_id: Optional[str] = None
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
@@ -512,11 +536,12 @@ class Notification(BaseModel):
 # Helper Functions
 # ========================
 
+
 def serialize_doc(doc: dict) -> dict:
     """Serialize MongoDB document for JSON response"""
     if doc is None:
         return None
-    
+
     result = {}
     for key, value in doc.items():
         if key == "_id":
@@ -528,10 +553,12 @@ def serialize_doc(doc: dict) -> dict:
         elif isinstance(value, dict):
             result[key] = serialize_doc(value)
         elif isinstance(value, list):
-            result[key] = [serialize_doc(item) if isinstance(item, dict) else item for item in value]
+            result[key] = [
+                serialize_doc(item) if isinstance(item, dict) else item for item in value
+            ]
         else:
             result[key] = value
-    
+
     return result
 
 
@@ -539,7 +566,7 @@ def deserialize_doc(data: dict) -> dict:
     """Deserialize JSON data for MongoDB insertion"""
     if data is None:
         return None
-    
+
     result = {}
     for key, value in data.items():
         if key == "id":
@@ -553,8 +580,10 @@ def deserialize_doc(data: dict) -> dict:
         elif isinstance(value, dict):
             result[key] = deserialize_doc(value)
         elif isinstance(value, list):
-            result[key] = [deserialize_doc(item) if isinstance(item, dict) else item for item in value]
+            result[key] = [
+                deserialize_doc(item) if isinstance(item, dict) else item for item in value
+            ]
         else:
             result[key] = value
-    
+
     return result
