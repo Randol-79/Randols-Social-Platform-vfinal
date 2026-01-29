@@ -106,7 +106,7 @@ jobs:
       - name: Run linting
         run: |
           cd frontend
-          npm run lint || npx eslint . --ext .js,.jsx,.ts,.tsx --config .eslintrc.json
+          npm run lint || npx eslint . --ext .js,.jsx,.ts,.tsx --config ./eslint.config.cjs
 
       - name: Run type check
         run: |
