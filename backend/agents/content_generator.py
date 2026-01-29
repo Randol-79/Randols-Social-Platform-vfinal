@@ -96,19 +96,27 @@ class ContentGeneratorAgent:
     def _create_content_plan(self, context: Dict[str, Any]) -> List[str]:
         """Create content plan based on context"""
         base_plan = ['morning_greeting', 'daily_special', 'evening_event']
-        
+
         # Add seasonal content
         season = context.get('seasonal_factors', {}).get('season', 'regular')
         if 'crawfish' in season:
             base_plan.append('crawfish_content')
         elif 'mardi_gras' in season:
             base_plan.append('mardi_gras_content')
-        
+
         # Add event content
         if context.get('local_events'):
             base_plan.append('event_promotion')
-        
+
         return base_plan
+
+    # Public compatibility wrapper
+    def create_content_plan(self, context: Dict[str, Any]) -> List[str]:
+        return self._create_content_plan(context)
+
+    # Public wrapper for hashtag generation
+    def generate_hashtags(self, keywords: List[str], platform: str = 'instagram') -> List[str]:
+        return self.cajun_processor.generate_hashtags(keywords, platform)
     
     @traced("generate_content_by_type")
     @timed("content_generation_duration")

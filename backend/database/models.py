@@ -25,7 +25,13 @@ class PyObjectId(ObjectId):
 
     @classmethod
     def __modify_schema__(cls, field_schema):
+        # Backwards-compatible helper for older pydantic versions
         field_schema.update(type="string")
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, *args, **kwargs):
+        # Pydantic v2 JSON schema hook
+        return {"type": "string"}
 
 
 class ContentStatus(str, Enum):

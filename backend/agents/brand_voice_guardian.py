@@ -207,17 +207,17 @@ class BrandVoiceGuardianAgent:
     def _check_tone_compliance(self, text: str) -> bool:
         """Check if tone matches brand guidelines"""
         text_lower = text.lower()
-        
+
         # Check for warm, welcoming language
         welcoming_words = ['welcome', 'join', 'come', 'visit', 'family', 'home', 
                          'together', 'y\'all', 'cher', 'friends']
         has_welcoming = any(word in text_lower for word in welcoming_words)
-        
+
         # Check for conversational tone (questions, exclamations, personal pronouns)
         conversational_indicators = ['!', '?', 'you', 'your', 'we', 'our', 'us']
         conversational_count = sum(1 for indicator in conversational_indicators if indicator in text)
         has_conversational = conversational_count >= 2
-        
+
         # Check sentiment if TextBlob available
         if TEXTBLOB_AVAILABLE:
             try:
@@ -227,13 +227,13 @@ class BrandVoiceGuardianAgent:
                     return False
             except:
                 pass
-        
+
         return has_welcoming and has_conversational
-    
+
     def _check_cultural_appropriateness(self, text: str) -> bool:
         """Ensure content is culturally appropriate and respectful"""
         text_lower = text.lower()
-        
+
         # Check for offensive stereotypes
         offensive_terms = ['hillbilly', 'redneck', 'backwards', 'primitive', 
                          'hick', 'country bumpkin', 'swamp folk']
@@ -241,21 +241,21 @@ class BrandVoiceGuardianAgent:
             if term in text_lower:
                 self.logger.warning(f"Offensive term detected: {term}")
                 return False
-        
+
         # Check for over-exaggerated dialect
         apostrophe_count = text.count("'")
         word_count = len(text.split())
         if word_count > 0 and (apostrophe_count / word_count) > 0.35:
             self.logger.warning("Over-exaggerated dialect detected")
             return False
-        
+
         # Check for mocking tone patterns
         mocking_patterns = [r'gonna git', r'fixin\' ta', r'ain\'t got no']
         for pattern in mocking_patterns:
             if re.search(pattern, text_lower):
                 self.logger.warning(f"Potentially mocking pattern detected: {pattern}")
                 return False
-        
+
         return True
     
     def _check_brand_consistency(self, text: str) -> bool:
@@ -393,6 +393,13 @@ class BrandVoiceGuardianAgent:
             'flagged_for_review': self.content_reviewed_today - self.content_approved_today,
             'uptime': '99.8%'
         }
+
+    # Public compatibility wrappers
+    def check_tone_compliance(self, text: str) -> bool:
+        return self._check_tone_compliance(text)
+
+    def check_cultural_appropriateness(self, text: str) -> bool:
+        return self._check_cultural_appropriateness(text)
     
     async def pause(self):
         """Pause the agent"""

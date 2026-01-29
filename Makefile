@@ -73,12 +73,16 @@ ifeq ($(OS),Windows_NT)
 	cd backend && $(PYTHON) -m venv venv && \
 		.\venv\Scripts\activate.ps1 && \
 		$(PYTHON) -m pip install --upgrade pip && \
-		pip install -r requirements.txt
+		pip install -r requirements.txt && \
+		pip install -r requirements-dev.txt || true && \
+		pre-commit install || true
 else
 	cd backend && $(PYTHON) -m venv venv && \
 		. venv/bin/activate && \
 		$(PYTHON) -m pip install --upgrade pip && \
-		pip install -r requirements.txt
+		pip install -r requirements.txt && \
+		pip install -r requirements-dev.txt || true && \
+		pre-commit install || true
 endif
 	@echo "Backend dependencies installed"
 
@@ -194,6 +198,11 @@ docker-up:
 	@echo "Services started"
 	@echo "   Backend:  http://localhost:5000"
 	@echo "   Frontend: http://localhost:3000"
+
+docker-db-up:
+	@echo "Starting database services (mongo + redis)"
+	docker-compose up -d mongo redis
+	@echo "Database services started"
 
 docker-down:
 	@echo "Stopping Docker services..."

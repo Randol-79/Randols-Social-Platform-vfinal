@@ -268,6 +268,14 @@ Remember: You're representing 50+ years of family tradition and the rich Cajun c
             if any(ref.lower() in text_lower for ref in references):
                 return True
         return False
+
+    # Public compatibility wrapper used by tests
+    def has_cultural_references(self, text: str) -> bool:
+        return self._has_cultural_references(text)
+
+    # Public compatibility wrapper for hashtags
+    def generate_cajun_hashtags(self, base_keywords: List[str], platform: str = 'instagram') -> List[str]:
+        return self.generate_hashtags(base_keywords, platform)
     
     def _has_warm_closing(self, text: str) -> bool:
         """Check if text has a warm, inviting closing"""

@@ -11,12 +11,17 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def event_loop():
-    """Create an instance of the event loop for async tests"""
+    """Create a fresh event loop per test to avoid closed-loop issues when other tests call asyncio.run"""
     loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+    try:
+        yield loop
+    finally:
+        try:
+            loop.close()
+        except Exception:
+            pass
 
 
 @pytest.fixture(scope="session")
