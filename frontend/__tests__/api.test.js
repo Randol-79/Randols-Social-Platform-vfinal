@@ -3,7 +3,7 @@
  * Tests for the API client and React hooks
  */
 
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { api, useFetch, useLocalStorage, useDebounce } from '../lib/api';
 
 // Mock fetch globally
@@ -126,8 +126,10 @@ describe('useFetch Hook', () => {
 
 describe('useLocalStorage Hook', () => {
   beforeEach(() => {
+    // Ensure localStorage is cleared and stub getItem robustly
     localStorage.clear();
-    localStorage.getItem.mockReturnValue(null);
+    // Replace getItem with a test-friendly mock implementation
+    localStorage.getItem = jest.fn(() => null);
   });
 
   it('returns initial value when storage is empty', () => {
@@ -137,10 +139,16 @@ describe('useLocalStorage Hook', () => {
   });
 
   it('returns stored value when present', () => {
-    localStorage.getItem.mockReturnValue(JSON.stringify('stored-value'));
-    
+    // Use a small in-memory store so setItem/getItem behave like the real API
+    localStorage.__store = {};
+    localStorage.setItem = jest.fn((k, v) => { localStorage.__store[k] = v; });
+    localStorage.getItem = jest.fn((k) => localStorage.__store[k] ?? null);
+
+    // Persist a value and then mount the hook
+    localStorage.setItem('test-key', JSON.stringify('stored-value'));
+
     const { result } = renderHook(() => useLocalStorage('test-key', 'initial'));
-    
+
     expect(result.current[0]).toBe('stored-value');
   });
 });
@@ -159,7 +167,11 @@ describe('useDebounce Hook', () => {
     rerender({ value: 'updated', delay: 500 });
     expect(result.current).toBe('initial');
 
-    jest.advanceTimersByTime(500);
+    // Use act to advance timers so React effects flush correctly
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+
     expect(result.current).toBe('updated');
   });
 

@@ -1,0 +1,6 @@
+{"timestamp": "2026-01-28T09:59:50.511129Z", "level": "INFO", "logger": "main_app", "message": "Flask app created: main", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T09:59:51.427689Z", "level": "INFO", "logger": "main_app", "message": "Starting Randol's Marketing Platform API", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T09:59:51.428690Z", "level": "INFO", "logger": "main_app", "message": "Host: 0.0.0.0, Port: 5000, Debug: False", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T11:28:42.311150Z", "level": "INFO", "logger": "main_app", "message": "Flask app created: main", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T11:28:42.763126Z", "level": "INFO", "logger": "main_app", "message": "Starting Randol's Marketing Platform API", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T11:28:42.763126Z", "level": "INFO", "logger": "main_app", "message": "Host: 0.0.0.0, Port: 5000, Debug: False", "module": "", "function": null, "line": 0}

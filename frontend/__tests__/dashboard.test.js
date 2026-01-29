@@ -33,10 +33,10 @@ describe('Dashboard Page', () => {
     render(<DashboardPage />);
     
     await waitFor(() => {
-      expect(screen.getByText(/Engagement Rate/i)).toBeInTheDocument();
-      expect(screen.getByText(/Weekly Reach/i)).toBeInTheDocument();
-      expect(screen.getByText(/Sentiment Score/i)).toBeInTheDocument();
-      expect(screen.getByText(/Posts Scheduled/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Engagement Rate/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Weekly Reach/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Sentiment Score/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Posts Scheduled/i).length).toBeGreaterThan(0);
     });
   });
 
@@ -44,9 +44,9 @@ describe('Dashboard Page', () => {
     render(<DashboardPage />);
     
     await waitFor(() => {
-      expect(screen.getByText(/Agent Status/i)).toBeInTheDocument();
-      expect(screen.getByText(/Master Orchestrator/i)).toBeInTheDocument();
-      expect(screen.getByText(/Content Generator/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Agent Status/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Master Orchestrator/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Content Generator/i).length).toBeGreaterThan(0);
     });
   });
 

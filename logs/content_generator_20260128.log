@@ -1,0 +1,8 @@
+{"timestamp": "2026-01-28T12:07:08.734599Z", "level": "WARNING", "logger": "content_generator", "message": "LLM client initialization failed: type object 'Config' has no attribute 'OPENAI_MODEL'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:07:08.835119Z", "level": "INFO", "logger": "content_generator", "message": "OpenAI client initialized (fallback mode)", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:07:46.808031Z", "level": "WARNING", "logger": "content_generator", "message": "LLM client initialization failed: type object 'Config' has no attribute 'OPENAI_MODEL'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:07:46.821127Z", "level": "INFO", "logger": "content_generator", "message": "OpenAI client initialized (fallback mode)", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T13:24:26.951493Z", "level": "WARNING", "logger": "content_generator", "message": "LLM client initialization failed: type object 'Config' has no attribute 'OPENAI_MODEL'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T13:24:26.977453Z", "level": "INFO", "logger": "content_generator", "message": "OpenAI client initialized (fallback mode)", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T21:56:23.751890Z", "level": "WARNING", "logger": "content_generator", "message": "LLM client initialization failed: type object 'Config' has no attribute 'OPENAI_MODEL'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T21:56:23.811832Z", "level": "INFO", "logger": "content_generator", "message": "OpenAI client initialized (fallback mode)", "module": "", "function": null, "line": 0}

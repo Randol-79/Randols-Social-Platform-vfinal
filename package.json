@@ -1,0 +1,22 @@
+{
+  "name": "randols-social-platform-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Workspace scripts for Randol's Social Platform",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "python backend/main.py",
+    "dev": "npx concurrently \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "test:frontend": "npm --prefix frontend test",
+    "test:backend": "pytest backend/tests -q",
+    "test": "npx concurrently -k \"npm:test:frontend\" \"npm:test:backend\"",
+    "build:frontend": "npm --prefix frontend run build",
+    "ci": "npm run test && npm run build:frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
