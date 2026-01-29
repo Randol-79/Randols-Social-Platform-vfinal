@@ -4,15 +4,16 @@ Handles A/B testing, engagement analysis, and strategy refinement
 """
 
 import asyncio
-import numpy as np
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Tuple, Optional
 import json
-import statistics
 import random
+import statistics
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
-from utils.logger import setup_logger
+import numpy as np
+
 from utils.config import Config
+from utils.logger import setup_logger
 
 
 class FeedbackLoopAgent:

@@ -4,11 +4,12 @@ Handles automated posting, scheduling optimization, and calendar management
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
-from collections import defaultdict
 import heapq
 import json
+from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
 from utils.config import Config
 from utils.logger import setup_logger
 

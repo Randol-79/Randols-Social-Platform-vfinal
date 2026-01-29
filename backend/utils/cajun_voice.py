@@ -3,10 +3,10 @@ Cajun Voice Processor - Handles authentic Louisiana dialect and cultural referen
 Ensures content maintains proper Cajun authenticity without stereotypes
 """
 
-import re
-from typing import Dict, List, Any, Optional
 import random
+import re
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 class CajunVoiceProcessor:

@@ -3,21 +3,23 @@ Randol's Agentic Marketing Platform - Main Flask API
 Complete REST API for frontend dashboard and agent communication
 """
 
-from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
-from flask_socketio import SocketIO, emit
-from datetime import datetime, timedelta
 import asyncio
+import functools
 import json
 import os
-import functools
+from datetime import datetime, timedelta
+
+from flask import Flask, jsonify, make_response, request
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit
+
+from agents.analytics_agent import AnalyticsAgent
+from agents.brand_voice_guardian import BrandVoiceGuardianAgent
+from agents.content_generator import ContentGeneratorAgent
+from agents.feedback_loop_agent import FeedbackLoopAgent
 
 # Import agents
 from agents.master_orchestrator import MasterOrchestratorAgent
-from agents.content_generator import ContentGeneratorAgent
-from agents.brand_voice_guardian import BrandVoiceGuardianAgent
-from agents.analytics_agent import AnalyticsAgent
-from agents.feedback_loop_agent import FeedbackLoopAgent
 
 # Import utilities
 from utils.config import Config

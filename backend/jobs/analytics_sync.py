@@ -4,18 +4,18 @@ Runs every 4 hours to collect and aggregate analytics from all platforms
 """
 
 import asyncio
-import sys
 import os
+import sys
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.config import Config
-from utils.logger import setup_logger
 from agents.analytics_agent import AnalyticsAgent
 from agents.platform_agents import PlatformAgentManager
+from utils.config import Config
+from utils.logger import setup_logger
 
 
 class AnalyticsSyncJob:

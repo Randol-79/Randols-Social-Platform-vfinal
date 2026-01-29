@@ -6,10 +6,10 @@ Provides a unified interface for OpenAI calls with observability
 import asyncio
 import json
 import time
-from datetime import datetime
-from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional
 
 from utils.config import Config
 from utils.logger import setup_logger
@@ -17,7 +17,7 @@ from utils.logger import setup_logger
 # Try to import dependencies
 try:
     import openai
-    from openai import OpenAI, AsyncOpenAI
+    from openai import AsyncOpenAI, OpenAI
 
     OPENAI_AVAILABLE = True
 except ImportError:
@@ -32,12 +32,12 @@ except ImportError:
 
 try:
     from tenacity import (
+        RetryError,
+        before_sleep_log,
         retry,
+        retry_if_exception_type,
         stop_after_attempt,
         wait_exponential,
-        retry_if_exception_type,
-        before_sleep_log,
-        RetryError,
     )
 
     TENACITY_AVAILABLE = True

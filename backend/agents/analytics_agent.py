@@ -4,13 +4,13 @@ Monitors engagement, sentiment, and provides actionable insights
 """
 
 import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
 import random
 import statistics
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from utils.logger import setup_logger
 from utils.config import Config
+from utils.logger import setup_logger
 
 
 class AnalyticsAgent:

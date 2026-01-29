@@ -4,20 +4,21 @@ Runs every Monday morning to generate and send weekly performance report
 """
 
 import asyncio
-import sys
-import os
 import json
+import os
+import sys
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Any, Dict, List
+
 import aiohttp
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.config import Config
-from utils.logger import setup_logger
 from agents.analytics_agent import AnalyticsAgent
 from agents.feedback_loop_agent import FeedbackLoopAgent
+from utils.config import Config
+from utils.logger import setup_logger
 
 
 class WeeklyReportJob:

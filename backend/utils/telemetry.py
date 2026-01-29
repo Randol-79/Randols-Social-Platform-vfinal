@@ -18,15 +18,15 @@ logger = setup_logger("telemetry")
 # Try to import OpenTelemetry
 OTEL_AVAILABLE = False
 try:
-    from opentelemetry import trace, metrics
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+    from opentelemetry import metrics, trace
     from opentelemetry.sdk.metrics import MeterProvider
     from opentelemetry.sdk.metrics.export import (
-        PeriodicExportingMetricReader,
         ConsoleMetricExporter,
+        PeriodicExportingMetricReader,
     )
     from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
     from opentelemetry.semconv.resource import ResourceAttributes
     from opentelemetry.trace import Status, StatusCode
 
@@ -37,8 +37,8 @@ except ImportError:
 # Try to import OTLP exporters
 OTLP_AVAILABLE = False
 try:
-    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
     OTLP_AVAILABLE = True
 except ImportError:

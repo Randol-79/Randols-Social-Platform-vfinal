@@ -4,18 +4,18 @@ Authentication and Authorization Middleware
 Provides API key validation, JWT authentication, and rate limiting.
 """
 
-import os
-import time
 import hashlib
 import hmac
+import os
 import secrets
+import time
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Optional, Dict, Any, Callable
+from typing import Any, Callable, Dict, Optional
 
-from flask import request, jsonify, g, current_app
-import redis
 import jwt
+import redis
+from flask import current_app, g, jsonify, request
 
 # ============================================
 # Configuration

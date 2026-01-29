@@ -7,7 +7,8 @@ import os
 from functools import wraps
 from typing import Callable, Optional
 
-from flask import Flask, request, jsonify, g
+from flask import Flask, g, jsonify, request
+
 from utils.config import Config
 from utils.logger import setup_logger
 

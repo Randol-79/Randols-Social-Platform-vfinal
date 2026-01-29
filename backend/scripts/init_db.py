@@ -10,10 +10,10 @@ This script initializes the MongoDB database with:
 - System settings
 """
 
-import asyncio
 import argparse
-import sys
+import asyncio
 import os
+import sys
 from datetime import datetime, timedelta
 
 # Add parent directory to path

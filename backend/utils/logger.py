@@ -3,12 +3,12 @@ Structured logging for Randol's Agentic Marketing Platform
 Provides consistent logging across all agents and services
 """
 
-import logging
-import sys
-import os
-from datetime import datetime
-from typing import Optional, Any, Dict
 import json
+import logging
+import os
+import sys
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 
 class JSONFormatter(logging.Formatter):

@@ -4,7 +4,8 @@ Provides centralized access to all agents with lazy initialization
 """
 
 import threading
-from typing import Dict, Any, Optional, Type
+from typing import Any, Dict, Optional, Type
+
 from utils.logger import setup_logger
 
 logger = setup_logger("agent_registry")

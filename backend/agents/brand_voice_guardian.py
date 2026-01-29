@@ -4,12 +4,12 @@ Uses NLP and rule-based validation to maintain brand consistency
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import re
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from utils.logger import setup_logger
 from utils.cajun_voice import CajunVoiceProcessor
+from utils.logger import setup_logger
 
 # Try to import TextBlob for sentiment analysis
 try:

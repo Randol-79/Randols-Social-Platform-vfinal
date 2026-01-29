@@ -3,9 +3,9 @@ Prompt Patterns for LLM-Coordinated Agent Workflows
 Implements GENERATOR_PROMPT, VALIDATOR_PROMPT, LLM-as-a-Judge patterns
 """
 
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class PromptRole(Enum):

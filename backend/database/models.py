@@ -3,12 +3,13 @@ Database Models for Randol's Agentic Marketing Platform
 MongoDB document schemas with Pydantic validation
 """
 
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
-from enum import Enum
-from pydantic import BaseModel, Field, validator
-from bson import ObjectId
 import json
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from bson import ObjectId
+from pydantic import BaseModel, Field, validator
 
 
 class PyObjectId(ObjectId):

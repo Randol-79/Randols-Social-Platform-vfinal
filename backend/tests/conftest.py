@@ -2,10 +2,11 @@
 Pytest Configuration for Randol's Agentic Marketing Platform
 """
 
-import pytest
 import asyncio
-import sys
 import os
+import sys
+
+import pytest
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,7 +45,7 @@ def client(app):
 @pytest.fixture
 def mock_openai():
     """Mock OpenAI client"""
-    from unittest.mock import Mock, AsyncMock
+    from unittest.mock import AsyncMock, Mock
 
     mock_response = Mock()
     mock_response.choices = [Mock()]

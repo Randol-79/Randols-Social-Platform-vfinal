@@ -4,19 +4,19 @@ Runs continuously and processes due posts from the queue
 """
 
 import asyncio
+import os
 import signal
 import sys
-import os
 from datetime import datetime
 from typing import Optional
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from agents.platform_agents import PlatformAgentManager
+from agents.scheduler_agent import SchedulerAgent
 from utils.config import Config
 from utils.logger import setup_logger
-from agents.scheduler_agent import SchedulerAgent
-from agents.platform_agents import PlatformAgentManager
 
 
 class SchedulerWorker:

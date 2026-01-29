@@ -5,21 +5,21 @@ Handles text generation, image creation, video scripting, and platform optimizat
 
 import asyncio
 import json
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-import random
 import os
+import random
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from utils.config import Config
 from utils.cajun_voice import CajunVoiceProcessor
-from utils.prompt_templates import PromptTemplates
+from utils.config import Config
 from utils.logger import setup_logger
 from utils.prompt_patterns import PromptPatterns, get_platform_requirements
-from utils.telemetry import traced, timed, get_marketing_metrics
+from utils.prompt_templates import PromptTemplates
+from utils.telemetry import get_marketing_metrics, timed, traced
 
 # Try to import the LLM client
 try:
-    from utils.llm_client import get_llm_client, LLMClient
+    from utils.llm_client import LLMClient, get_llm_client
 
     LLM_CLIENT_AVAILABLE = True
 except ImportError:

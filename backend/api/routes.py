@@ -3,15 +3,16 @@ API Routes for Randol's Agentic Marketing Platform
 Complete REST API with WebSocket support
 """
 
-from flask import Blueprint, request, jsonify, current_app
-from functools import wraps
-from datetime import datetime, timedelta
 import asyncio
 import json
-from typing import Dict, Any, Optional
+from datetime import datetime, timedelta
+from functools import wraps
+from typing import Any, Dict, Optional
 
-from utils.logger import setup_logger
+from flask import Blueprint, current_app, jsonify, request
+
 from utils.config import Config
+from utils.logger import setup_logger
 
 logger = setup_logger("api_routes")
 
@@ -213,8 +214,8 @@ async def get_content(content_id: str):
 @async_route
 async def create_content():
     """Create new content"""
-    from database import ContentRepository, ContentStatus
     from agents.brand_voice_guardian import BrandVoiceGuardianAgent
+    from database import ContentRepository, ContentStatus
 
     data = request.get_json()
 
@@ -417,8 +418,8 @@ async def get_pending_posts():
 @async_route
 async def schedule_post():
     """Schedule content for posting"""
-    from database import ScheduleRepository, ContentRepository
     from agents.scheduler_agent import SchedulerAgent
+    from database import ContentRepository, ScheduleRepository
 
     data = request.get_json()
 
@@ -611,8 +612,8 @@ async def get_performance_analysis():
 @async_route
 async def get_recommendations():
     """Get AI-powered recommendations"""
-    from agents.feedback_loop_agent import FeedbackLoopAgent
     from agents.analytics_agent import AnalyticsAgent
+    from agents.feedback_loop_agent import FeedbackLoopAgent
 
     feedback_agent = FeedbackLoopAgent()
     analytics_agent = AnalyticsAgent()

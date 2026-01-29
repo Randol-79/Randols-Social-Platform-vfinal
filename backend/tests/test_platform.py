@@ -3,13 +3,14 @@ Test Suite for Randol's Agentic Marketing Platform
 Run with: pytest backend/tests/ -v
 """
 
-import pytest
 import asyncio
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, AsyncMock
 import json
-import sys
 import os
+import sys
+from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -493,8 +494,8 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_content_pipeline(self, sample_context):
         """Test full content generation pipeline"""
-        from agents.content_generator import ContentGeneratorAgent
         from agents.brand_voice_guardian import BrandVoiceGuardianAgent
+        from agents.content_generator import ContentGeneratorAgent
         from agents.scheduler_agent import SchedulerAgent
 
         # Generate

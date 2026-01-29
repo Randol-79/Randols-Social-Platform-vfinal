@@ -3,21 +3,22 @@ Main Flask Application Entry Point
 Randol's Agentic Marketing Platform API Server
 """
 
+import asyncio
+import logging
 import os
 import sys
-import asyncio
 from datetime import datetime
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
-import logging
 
 # Add backend to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from api.routes import register_blueprints
 from utils.config import Config
 from utils.logger import setup_logger
-from api.routes import register_blueprints
 
 # Initialize logger
 logger = setup_logger("main_app")
