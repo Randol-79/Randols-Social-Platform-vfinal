@@ -3,9 +3,9 @@ Prompt Patterns for LLM-Coordinated Agent Workflows
 Implements GENERATOR_PROMPT, VALIDATOR_PROMPT, LLM-as-a-Judge patterns
 """
 
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class PromptRole(Enum):
@@ -18,6 +18,7 @@ class PromptRole(Enum):
 @dataclass
 class PromptTemplate:
     """Structured prompt template with metadata"""
+
     name: str
     role: PromptRole
     system_prompt: str
@@ -32,7 +33,7 @@ class PromptTemplate:
             "system": self.system_prompt,
             "user": self.user_template.format(**kwargs),
             "max_tokens": self.max_tokens,
-            "temperature": self.temperature
+            "temperature": self.temperature,
         }
 
 
@@ -67,7 +68,6 @@ Restaurant context:
 - Established 1973, family-owned for three generations
 - Famous for crawfish, live zydeco music, and authentic Cajun cuisine
 - Located in "Crawfish Capital of the World" - Breaux Bridge, LA""",
-
         user_template="""Generate {content_type} content for {platform}.
 
 Context:
@@ -95,7 +95,7 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=600,
-        temperature=0.7
+        temperature=0.7,
     )
 
     STORYTELLING_GENERATOR = PromptTemplate(
@@ -109,7 +109,6 @@ Your stories should:
 - Use sensory details that make readers taste, smell, and feel Louisiana
 - Connect emotionally while remaining authentic to Cajun culture
 - Never be longer than 3 short paragraphs for social media""",
-
         user_template="""Create a storytelling post about: {story_theme}
 
 Story elements to potentially include:
@@ -131,7 +130,7 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=800,
-        temperature=0.8
+        temperature=0.8,
     )
 
     # =========================================
@@ -156,7 +155,6 @@ Red flags to watch for:
 - Overly promotional/salesy language
 - Culturally insensitive content
 - Generic content that could be for any restaurant""",
-
         user_template="""Validate this content for Randol's brand voice:
 
 Content: {content_text}
@@ -183,7 +181,7 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=500,
-        temperature=0.3
+        temperature=0.3,
     )
 
     CONTENT_QUALITY_VALIDATOR = PromptTemplate(
@@ -197,7 +195,6 @@ Quality dimensions:
 3. Call-to-Action: Is there a natural next step for the reader?
 4. Visual Compatibility: Will this work well with images/video?
 5. Platform Optimization: Is it optimized for the specific platform?""",
-
         user_template="""Evaluate content quality:
 
 Content: {content_text}
@@ -221,7 +218,7 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=400,
-        temperature=0.3
+        temperature=0.3,
     )
 
     # =========================================
@@ -245,7 +242,6 @@ Evaluation criteria (in order of importance):
 3. Emotional resonance - Which connects better emotionally?
 4. Clarity and readability - Which is easier to consume?
 5. Call-to-action effectiveness - Which drives more action?""",
-
         user_template="""Compare these two content variants for {platform}:
 
 === VARIANT A ===
@@ -282,7 +278,7 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=700,
-        temperature=0.2
+        temperature=0.2,
     )
 
     # =========================================
@@ -301,7 +297,6 @@ Improvement guidelines:
 - Improve engagement hooks
 - Ensure natural flow
 - Keep the core message intact""",
-
         user_template="""Improve this content based on feedback:
 
 Original content:
@@ -329,14 +324,13 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=600,
-        temperature=0.5
+        temperature=0.5,
     )
 
     PERFORMANCE_ANALYZER = PromptTemplate(
         name="performance_analyzer",
         role=PromptRole.FEEDBACK,
         system_prompt="""You are a social media performance analyst. Analyze engagement data to provide actionable insights for content optimization.""",
-
         user_template="""Analyze this content performance data:
 
 Content: {content_text}
@@ -366,7 +360,7 @@ Output as JSON:
 }}""",
         expected_output_format="json",
         max_tokens=500,
-        temperature=0.3
+        temperature=0.3,
     )
 
     @classmethod
@@ -379,7 +373,7 @@ Output as JSON:
             "content_quality_validator": cls.CONTENT_QUALITY_VALIDATOR,
             "ab_test_judge": cls.AB_TEST_JUDGE,
             "content_improver": cls.CONTENT_IMPROVER,
-            "performance_analyzer": cls.PERFORMANCE_ANALYZER
+            "performance_analyzer": cls.PERFORMANCE_ANALYZER,
         }
         return prompts.get(name)
 
@@ -393,7 +387,7 @@ Output as JSON:
             "content_quality_validator",
             "ab_test_judge",
             "content_improver",
-            "performance_analyzer"
+            "performance_analyzer",
         ]
 
 
@@ -404,36 +398,36 @@ PLATFORM_REQUIREMENTS = {
         "optimal_chars": 125,
         "max_hashtags": 30,
         "optimal_hashtags": 11,
-        "requirements": "Use emojis sparingly, focus on visual storytelling, include relevant hashtags"
+        "requirements": "Use emojis sparingly, focus on visual storytelling, include relevant hashtags",
     },
     "facebook": {
         "max_chars": 63206,
         "optimal_chars": 80,
         "max_hashtags": 3,
         "optimal_hashtags": 1,
-        "requirements": "Focus on community engagement, encourage comments, share stories"
+        "requirements": "Focus on community engagement, encourage comments, share stories",
     },
     "tiktok": {
         "max_chars": 2200,
         "optimal_chars": 150,
         "max_hashtags": 5,
         "optimal_hashtags": 3,
-        "requirements": "Trendy, casual tone, hook in first 3 seconds, use trending sounds reference"
+        "requirements": "Trendy, casual tone, hook in first 3 seconds, use trending sounds reference",
     },
     "twitter": {
         "max_chars": 280,
         "optimal_chars": 100,
         "max_hashtags": 2,
         "optimal_hashtags": 1,
-        "requirements": "Concise, punchy, conversational, strong hook"
+        "requirements": "Concise, punchy, conversational, strong hook",
     },
     "google_posts": {
         "max_chars": 1500,
         "optimal_chars": 300,
         "max_hashtags": 0,
         "optimal_hashtags": 0,
-        "requirements": "Professional, informative, include business details, clear CTA"
-    }
+        "requirements": "Professional, informative, include business details, clear CTA",
+    },
 }
 
 

@@ -1,0 +1,14 @@
+{"timestamp": "2026-01-29T05:36:24.497924Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:36:24.501956Z", "level": "INFO", "logger": "analytics_agent", "message": "Analysis completed: 5 recommendations", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:44:19.077402Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:44:19.080402Z", "level": "ERROR", "logger": "analytics_agent", "message": "Error in performance analysis: object of type 'NoneType' has no len()", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:44:19.092181Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:44:19.095225Z", "level": "ERROR", "logger": "analytics_agent", "message": "Error in performance analysis: object of type 'NoneType' has no len()", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:52:45.762497Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:52:45.764459Z", "level": "ERROR", "logger": "analytics_agent", "message": "Error in performance analysis: object of type 'NoneType' has no len()", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:52:45.768545Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:52:45.772546Z", "level": "ERROR", "logger": "analytics_agent", "message": "Error in performance analysis: object of type 'NoneType' has no len()", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:53:28.765914Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:53:28.767917Z", "level": "ERROR", "logger": "analytics_agent", "message": "Error in performance analysis: object of type 'NoneType' has no len()", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:53:28.771900Z", "level": "INFO", "logger": "analytics_agent", "message": "Analyzing performance for period: 7d", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-29T05:53:28.773880Z", "level": "ERROR", "logger": "analytics_agent", "message": "Error in performance analysis: object of type 'NoneType' has no len()", "module": "", "function": null, "line": 0}

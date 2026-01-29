@@ -36,17 +36,42 @@ cd marketing-platform
 .\setup.ps1
 ```
 
-### Option 2: Make Command
+### Option 2: Make Command (Cross-platform)
 ```bash
+# Installs dependencies and starts frontend + backend
 make install && make dev
 ```
 
-### Option 3: Docker (Recommended)
+### Option 3: Docker (Recommended for production-like environment)
 ```bash
 cp .env.example .env
 # Edit .env with your API keys
 docker-compose up
 ```
+
+### Development quickstart (dev-optimized, fast feedback)
+```bash
+# Frontend only (hot reload):
+cd frontend && npm install && npm run dev
+
+# Backend only (watching not configured by default):
+cd backend && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt && python main.py
+
+# Start both locally using make (cross-platform):
+make dev
+
+# Run tests:
+make test
+```
+
+**Local development checklist (recommended)**
+- Install Docker Desktop (recommended) so you can run MongoDB and Redis locally.
+- Create `.env` (automatically generated with secure defaults via `scripts/generate_env.py` or run `.\setup.ps1` on Windows). For non-interactive runs you can set `NONINTERACTIVE=1`.
+- Start just the DB services locally: `make docker-db-up`.
+- Initialize the database (samples): `make db-init` or `python backend/scripts/init_db.py --samples`.
+- Start the apps:
+  - Backend: `make dev-backend` (or `cd backend && .\venv\Scripts\Activate.ps1 && python main.py` on Windows)
+  - Frontend: `make dev-frontend`
 
 **That's it!** Open http://localhost:3000
 
@@ -198,6 +223,47 @@ JWT_SECRET_KEY=auto-generated
 |----------|-----------|
 | Instagram | `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_BUSINESS_ACCOUNT_ID` |
 | Facebook | `FACEBOOK_ACCESS_TOKEN`, `FACEBOOK_PAGE_ID` |
+
+---
+
+## 🔐 GitHub Actions Secrets & Validation Helper ✅
+
+I've added a workflow that helps you validate required CI/CD secrets and repository Actions permissions, and can optionally trigger a test Render deployment.
+
+1) Add repository secrets (Settings → Secrets → Actions):
+   - `RENDER_API_KEY` (if using Render)
+   - `RENDER_SERVICE_ID` (if using Render)
+   - `VERCEL_TOKEN` (if using Vercel)
+   - `VERCEL_PROJECT_ID` (if using Vercel)
+   - `DOCKERHUB_USERNAME` (optional fallback)
+   - `DOCKERHUB_TOKEN` (optional fallback)
+
+2) Run the validation workflow in GitHub UI: `.github/workflows/validate-secrets.yml` → `Run workflow`.
+   - Optional input: `trigger_render_deploy=true` to automatically trigger a Render deploy if both `RENDER_*` secrets are present.
+
+3) From the command line (with GitHub CLI installed):
+
+```bash
+# Validate secrets (no deploy)
+gh workflow run validate-secrets.yml --repo <owner>/<repo>
+
+# Validate and trigger a Render deploy (only if RENDER secrets are set)
+gh workflow run validate-secrets.yml --repo <owner>/<repo> -f trigger_render_deploy=true
+```
+
+4) What the workflow checks:
+   - Presence of required secrets listed above
+   - Repository Actions permissions (it reads the 'actions' permissions and reports them)
+   - If `trigger_render_deploy` is true and Render secrets exist, it triggers a Render deploy via the Render API and reports the result.
+
+> Important: Do not paste secrets into PR comments or chat. Use the repository Secrets UI or `gh secret set` / GitHub UI to add them securely.
+
+---
+
+If you'd like, I can also:
+- Add an automated check that fails CI if critical secrets are missing (recommended for locked-down repos).
+- Add a `gh` helper script to set secrets from your machine using `gh secret set` (safe and local).
+
 | TikTok | `TIKTOK_ACCESS_TOKEN`, `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET` |
 | YouTube | `YOUTUBE_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
 

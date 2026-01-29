@@ -4,6 +4,13 @@
 # ===========================================
 
 $ErrorActionPreference = "Stop"
+# Ensure console uses UTF-8 to prevent format errors on some Windows terminals
+try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+} catch {
+    # Ignore if unsupported
+}
+
 
 # Colors
 $Red = "Red"
@@ -13,16 +20,9 @@ $Blue = "Cyan"
 $Purple = "Magenta"
 
 function Write-Banner {
+    # Simplified banner - avoids unicode/encoding issues on some terminals
     Write-Host ""
-    Write-Host "  ██████╗  █████╗ ███╗   ██╗██████╗  ██████╗ ██╗     ███████╗" -ForegroundColor $Red
-    Write-Host "  ██╔══██╗██╔══██╗████╗  ██║██╔══██╗██╔═══██╗██║     ██╔════╝" -ForegroundColor $Red
-    Write-Host "  ██████╔╝███████║██╔██╗ ██║██║  ██║██║   ██║██║     ███████╗" -ForegroundColor $Red
-    Write-Host "  ██╔══██╗██╔══██║██║╚██╗██║██║  ██║██║   ██║██║     ╚════██║" -ForegroundColor $Red
-    Write-Host "  ██║  ██║██║  ██║██║ ╚████║██████╔╝╚██████╔╝███████╗███████║" -ForegroundColor $Red
-    Write-Host "  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚══════╝╚══════╝" -ForegroundColor $Red
-    Write-Host ""
-    Write-Host "  Agentic Social Media Marketing Platform" -ForegroundColor $Blue
-    Write-Host "  One-Click Setup Wizard for Windows" -ForegroundColor $Yellow
+    Write-Host "Randol's Agentic Social Media Marketing Platform - Setup" -ForegroundColor $Blue
     Write-Host ""
 }
 
@@ -103,15 +103,43 @@ function Test-Prerequisites {
 function New-EnvFile {
     Write-Step "Setting up environment variables..."
 
+    # Support non-interactive runs (CI/CD, automation)
+    $nonInteractive = $false
+    if ($env:NONINTERACTIVE -eq "1" -or $env:NONINTERACTIVE -eq "true" -or $env:CI -eq "true") {
+        $nonInteractive = $true
+        Write-Warning "Running in non-interactive mode: .env will be auto-generated"
+    }
+
     if (Test-Path ".env") {
-        $overwrite = Read-Host "  .env file exists. Overwrite? (y/N)"
-        if ($overwrite -ne "y" -and $overwrite -ne "Y") {
-            Write-Warning "Keeping existing .env file"
-            return
+        if (-not $nonInteractive) {
+            $overwrite = Read-Host "  .env file exists. Overwrite? (y/N)"
+            if ($overwrite -ne "y" -and $overwrite -ne "Y") {
+                Write-Warning "Keeping existing .env file"
+                return
+            }
+        } else {
+            Write-Warning "Overwriting existing .env (non-interactive mode)"
         }
     }
 
     Copy-Item ".env.example" ".env" -Force
+
+    if ($nonInteractive) {
+        # Default MongoDB (local) for dev
+        (Get-Content .env) -replace "MONGODB_URI=.*", "MONGODB_URI=mongodb://localhost:27017/randols_marketing" | Set-Content .env
+
+        # Generate secrets and API keys with reasonable defaults
+        $secretKey = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 64 | ForEach-Object {[char]$_})
+        $jwtSecret = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 64 | ForEach-Object {[char]$_})
+        $apiKey = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 48 | ForEach-Object {[char]$_})
+
+        (Get-Content .env) -replace "SECRET_KEY=.*", "SECRET_KEY=$secretKey" | Set-Content .env
+        (Get-Content .env) -replace "JWT_SECRET_KEY=.*", "JWT_SECRET_KEY=$jwtSecret" | Set-Content .env
+        (Get-Content .env) -replace "API_KEY=.*", "API_KEY=$apiKey" | Set-Content .env
+
+        Write-Success "Environment file auto-configured (non-interactive)"
+        return
+    }
 
     Write-Host ""
     Write-Host "🔑 API Key Configuration" -ForegroundColor $Blue
@@ -157,8 +185,12 @@ function Install-Backend {
     python -m pip install --upgrade pip -q
     pip install -r requirements.txt -q
 
-    # Download NLTK data
-    python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('averaged_perceptron_tagger', quiet=True)" 2>$null
+    # Download NLTK data (best-effort; ignore failures)
+    try {
+        python -c 'import nltk; nltk.download("punkt"); nltk.download("averaged_perceptron_tagger")' 2>$null
+    } catch {
+        # NLTK downloads failed; continue silently
+    }
 
     deactivate
     Pop-Location
@@ -177,17 +209,17 @@ function Install-Frontend {
 }
 
 function Initialize-Database {
-    Write-Step "🗄️ Initializing database..."
+    Write-Step 'Initializing database (best-effort)...'
 
     Push-Location backend
     & .\venv\Scripts\Activate.ps1
 
     try {
         python scripts/init_db.py --samples 2>$null
-        Write-Success "Database initialized"
+        Write-Success 'Database initialized'
     } catch {
-        Write-Warning "Database initialization skipped (MongoDB may not be running)"
-        Write-Host "  Start MongoDB and run: python scripts/init_db.py" -ForegroundColor Gray
+        Write-Warning 'Database initialization skipped (MongoDB may not be running)'
+        Write-Host '  Start MongoDB and run: python scripts/init_db.py' -ForegroundColor Gray
     }
 
     deactivate
@@ -195,33 +227,17 @@ function Initialize-Database {
 }
 
 function Write-Completion {
-    Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor $Green
-    Write-Host "🚀 Setup Complete!" -ForegroundColor $Green
-    Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor $Green
-    Write-Host ""
-    Write-Host "Quick Start Commands:" -ForegroundColor $Blue
-    Write-Host ""
-    Write-Host "  Start Development Servers:" -ForegroundColor $Yellow
-    Write-Host "    make dev"
-    Write-Host ""
-    Write-Host "  Or start separately:" -ForegroundColor $Yellow
-    Write-Host "    Backend:  cd backend; .\venv\Scripts\Activate.ps1; python main.py"
-    Write-Host "    Frontend: cd frontend; npm run dev"
-    Write-Host ""
-    Write-Host "  With Docker:" -ForegroundColor $Yellow
-    Write-Host "    docker-compose up"
-    Write-Host ""
-    Write-Host "Access Points:" -ForegroundColor $Blue
-    Write-Host "  Frontend:  http://localhost:3000"
-    Write-Host "  Backend:   http://localhost:5000"
-    Write-Host "  API Docs:  http://localhost:5000/api/v1/docs"
-    Write-Host ""
-    Write-Host "Next Steps:" -ForegroundColor $Blue
-    Write-Host "  1. Configure your social media API keys in .env"
-    Write-Host "  2. Set up MongoDB (local or Atlas)"
-    Write-Host "  3. Run: make dev"
-    Write-Host ""
+    Write-Host ''
+    Write-Host 'Setup Complete!'
+    Write-Host 'Quick Start Commands:'
+    Write-Host '  - Start development servers: make dev'
+    Write-Host '  - Start backend: cd backend; .\venv\Scripts\Activate.ps1; python main.py'
+    Write-Host '  - Start frontend: cd frontend; npm run dev'
+    Write-Host '  - With Docker: docker-compose up'
+    Write-Host 'Access Points:'
+    Write-Host '  - Frontend: http://localhost:3000'
+    Write-Host '  - Backend:  http://localhost:5000 (API docs: /api/v1/docs)'
+    Write-Host 'Next steps: configure .env and start services'
 }
 
 # Main execution

@@ -7,7 +7,8 @@ import os
 from functools import wraps
 from typing import Callable, Optional
 
-from flask import Flask, request, jsonify, g
+from flask import Flask, g, jsonify, request
+
 from utils.config import Config
 from utils.logger import setup_logger
 
@@ -18,6 +19,7 @@ LIMITER_AVAILABLE = False
 try:
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address
+
     LIMITER_AVAILABLE = True
 except ImportError:
     logger.warning("flask-limiter not installed, rate limiting disabled")
@@ -32,7 +34,7 @@ class RateLimiter:
     def __init__(self, app: Optional[Flask] = None):
         self.app = app
         self.limiter = None
-        self.enabled = Config.RATE_LIMIT_ENABLED if hasattr(Config, 'RATE_LIMIT_ENABLED') else True
+        self.enabled = Config.RATE_LIMIT_ENABLED if hasattr(Config, "RATE_LIMIT_ENABLED") else True
 
         if app:
             self.init_app(app)
@@ -50,8 +52,8 @@ class RateLimiter:
             return
 
         # Get configuration
-        per_minute = getattr(Config, 'RATE_LIMIT_PER_MINUTE', 60)
-        per_hour = getattr(Config, 'RATE_LIMIT_PER_HOUR', 1000)
+        per_minute = getattr(Config, "RATE_LIMIT_PER_MINUTE", 60)
+        per_hour = getattr(Config, "RATE_LIMIT_PER_HOUR", 1000)
 
         # Configure storage backend
         redis_url = self._get_redis_url()
@@ -70,11 +72,16 @@ class RateLimiter:
             # Add error handler
             @app.errorhandler(429)
             def rate_limit_exceeded(e):
-                return jsonify({
-                    "error": "Rate limit exceeded",
-                    "message": str(e.description),
-                    "retry_after": getattr(e, 'retry_after', 60)
-                }), 429
+                return (
+                    jsonify(
+                        {
+                            "error": "Rate limit exceeded",
+                            "message": str(e.description),
+                            "retry_after": getattr(e, "retry_after", 60),
+                        }
+                    ),
+                    429,
+                )
 
             logger.info(f"Rate limiter initialized: {per_minute}/min, {per_hour}/hour")
 
@@ -84,13 +91,13 @@ class RateLimiter:
 
     def _get_redis_url(self) -> Optional[str]:
         """Get Redis URL for rate limit storage"""
-        redis_url = getattr(Config, 'REDIS_URL', None)
+        redis_url = getattr(Config, "REDIS_URL", None)
         if redis_url:
             return redis_url
 
-        redis_host = getattr(Config, 'REDIS_HOST', 'localhost')
-        redis_port = getattr(Config, 'REDIS_PORT', 6379)
-        redis_password = getattr(Config, 'REDIS_PASSWORD', None)
+        redis_host = getattr(Config, "REDIS_HOST", "localhost")
+        redis_port = getattr(Config, "REDIS_PORT", 6379)
+        redis_password = getattr(Config, "REDIS_PASSWORD", None)
 
         if redis_password:
             return f"redis://:{redis_password}@{redis_host}:{redis_port}/1"
@@ -99,7 +106,7 @@ class RateLimiter:
     def _get_request_key(self) -> str:
         """Get the key for rate limiting (IP or API key)"""
         # Check for API key first
-        api_key = request.headers.get('X-API-Key') or request.args.get('api_key')
+        api_key = request.headers.get("X-API-Key") or request.args.get("api_key")
         if api_key:
             return f"api_key:{api_key}"
 
@@ -115,10 +122,12 @@ class RateLimiter:
             def my_route():
                 pass
         """
+
         def decorator(f: Callable) -> Callable:
             if self.limiter:
                 return self.limiter.limit(limit_string)(f)
             return f
+
         return decorator
 
     def exempt(self):
@@ -130,10 +139,12 @@ class RateLimiter:
             def health_check():
                 pass
         """
+
         def decorator(f: Callable) -> Callable:
             if self.limiter:
                 return self.limiter.exempt(f)
             return f
+
         return decorator
 
     def shared_limit(self, limit_string: str, scope: str):
@@ -145,10 +156,12 @@ class RateLimiter:
             def create_content():
                 pass
         """
+
         def decorator(f: Callable) -> Callable:
             if self.limiter:
                 return self.limiter.shared_limit(limit_string, scope)(f)
             return f
+
         return decorator
 
 
@@ -204,10 +217,12 @@ def rate_limit(limit_string: str):
         def my_route():
             pass
     """
+
     def decorator(f: Callable) -> Callable:
         if _rate_limiter and _rate_limiter.limiter:
             return _rate_limiter.limiter.limit(limit_string)(f)
         return f
+
     return decorator
 
 
@@ -220,8 +235,10 @@ def rate_limit_exempt():
         def health_check():
             pass
     """
+
     def decorator(f: Callable) -> Callable:
         if _rate_limiter and _rate_limiter.limiter:
             return _rate_limiter.limiter.exempt(f)
         return f
+
     return decorator

@@ -1,0 +1,14 @@
+{"timestamp": "2026-01-28T09:59:50.509128Z", "level": "INFO", "logger": "api_routes", "message": "API blueprints registered", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T11:28:42.309642Z", "level": "INFO", "logger": "api_routes", "message": "API blueprints registered", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:00:43.975666Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:00:43.984674Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:04:22.063836Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:04:22.075641Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:05:57.750533Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:05:57.762288Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:08:56.357834Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T12:08:56.363937Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T13:23:54.438373Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T13:23:54.475376Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T21:56:07.031774Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}
+{"timestamp": "2026-01-28T21:56:07.040775Z", "level": "ERROR", "logger": "api_routes", "message": "API error in list_content: No module named 'bson'", "module": "", "function": null, "line": 0}

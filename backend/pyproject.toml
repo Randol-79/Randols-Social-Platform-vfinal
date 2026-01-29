@@ -64,10 +64,12 @@ exclude = [
 ]
 plugins = ["pydantic.mypy"]
 
-[tool.mypy.plugins.pydantic]
-init_forbid_extra = true
-init_typed = true
-warn_required_dynamic_aliases = true
+# Plugin options for pydantic mypy plugin removed to avoid TOML nested table conflict
+# If needed, add plugin-specific config in a dedicated mypy.ini or setup.cfg
+# [tool.mypy.plugins.pydantic]
+# init_forbid_extra = true
+# init_typed = true
+# warn_required_dynamic_aliases = true
 
 [tool.flake8]
 max-line-length = 100

@@ -6,10 +6,10 @@ Provides a unified interface for OpenAI calls with observability
 import asyncio
 import json
 import time
-from datetime import datetime
-from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional
 
 from utils.config import Config
 from utils.logger import setup_logger
@@ -17,26 +17,29 @@ from utils.logger import setup_logger
 # Try to import dependencies
 try:
     import openai
-    from openai import OpenAI, AsyncOpenAI
+    from openai import AsyncOpenAI, OpenAI
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
 
 try:
     import tiktoken
+
     TIKTOKEN_AVAILABLE = True
 except ImportError:
     TIKTOKEN_AVAILABLE = False
 
 try:
     from tenacity import (
+        RetryError,
+        before_sleep_log,
         retry,
+        retry_if_exception_type,
         stop_after_attempt,
         wait_exponential,
-        retry_if_exception_type,
-        before_sleep_log,
-        RetryError
     )
+
     TENACITY_AVAILABLE = True
 except ImportError:
     TENACITY_AVAILABLE = False
@@ -57,6 +60,7 @@ MODEL_PRICING = {
 @dataclass
 class LLMUsageStats:
     """Track LLM usage statistics"""
+
     total_requests: int = 0
     total_prompt_tokens: int = 0
     total_completion_tokens: int = 0
@@ -67,8 +71,9 @@ class LLMUsageStats:
     avg_latency_ms: float = 0.0
     _latencies: List[float] = field(default_factory=list)
 
-    def record_request(self, model: str, prompt_tokens: int, completion_tokens: int,
-                      cost: float, latency_ms: float):
+    def record_request(
+        self, model: str, prompt_tokens: int, completion_tokens: int, cost: float, latency_ms: float
+    ):
         """Record a successful request"""
         self.total_requests += 1
         self.total_prompt_tokens += prompt_tokens
@@ -98,13 +103,14 @@ class LLMUsageStats:
             "errors": self.errors,
             "retries": self.retries,
             "avg_latency_ms": round(self.avg_latency_ms, 2),
-            "error_rate": round(self.errors / max(self.total_requests, 1) * 100, 2)
+            "error_rate": round(self.errors / max(self.total_requests, 1) * 100, 2),
         }
 
 
 @dataclass
 class LLMResponse:
     """Structured LLM response with metadata"""
+
     content: str
     model: str
     prompt_tokens: int
@@ -122,11 +128,11 @@ class LLMResponse:
             "tokens": {
                 "prompt": self.prompt_tokens,
                 "completion": self.completion_tokens,
-                "total": self.total_tokens
+                "total": self.total_tokens,
             },
             "cost_usd": round(self.cost_usd, 6),
             "latency_ms": round(self.latency_ms, 2),
-            "finish_reason": self.finish_reason
+            "finish_reason": self.finish_reason,
         }
 
 
@@ -202,13 +208,13 @@ class LLMClient:
             return len(text) // 4
         return len(self._encoder.encode(text))
 
-    def estimate_cost(self, prompt_tokens: int, completion_tokens: int,
-                     model: Optional[str] = None) -> float:
+    def estimate_cost(
+        self, prompt_tokens: int, completion_tokens: int, model: Optional[str] = None
+    ) -> float:
         """Estimate cost in USD"""
         model = model or self._model
         pricing = MODEL_PRICING.get(model, MODEL_PRICING["gpt-4"])
-        return (prompt_tokens * pricing["input"] +
-                completion_tokens * pricing["output"]) / 1000
+        return (prompt_tokens * pricing["input"] + completion_tokens * pricing["output"]) / 1000
 
     @property
     def is_available(self) -> bool:
@@ -221,17 +227,20 @@ class LLMClient:
             # Return no-op decorator if tenacity not available
             def no_retry(func):
                 return func
+
             return no_retry
 
         return retry(
             stop=stop_after_attempt(3),
             wait=wait_exponential(multiplier=1, min=4, max=60),
-            retry=retry_if_exception_type((
-                openai.RateLimitError if OPENAI_AVAILABLE else Exception,
-                openai.APIConnectionError if OPENAI_AVAILABLE else Exception,
-                openai.APITimeoutError if OPENAI_AVAILABLE else Exception,
-            )),
-            before_sleep=lambda retry_state: self.stats.record_retry()
+            retry=retry_if_exception_type(
+                (
+                    openai.RateLimitError if OPENAI_AVAILABLE else Exception,
+                    openai.APIConnectionError if OPENAI_AVAILABLE else Exception,
+                    openai.APITimeoutError if OPENAI_AVAILABLE else Exception,
+                )
+            ),
+            before_sleep=lambda retry_state: self.stats.record_retry(),
         )
 
     def complete(
@@ -241,7 +250,7 @@ class LLMClient:
         model: Optional[str] = None,
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        response_format: Optional[Dict] = None
+        response_format: Optional[Dict] = None,
     ) -> LLMResponse:
         """
         Synchronous completion with full tracking.
@@ -294,13 +303,17 @@ class LLMClient:
 
             # Extract response data
             content = response.choices[0].message.content
-            completion_tokens = response.usage.completion_tokens if response.usage else self.count_tokens(content)
+            completion_tokens = (
+                response.usage.completion_tokens if response.usage else self.count_tokens(content)
+            )
             actual_prompt_tokens = response.usage.prompt_tokens if response.usage else prompt_tokens
             total_tokens = actual_prompt_tokens + completion_tokens
             cost = self.estimate_cost(actual_prompt_tokens, completion_tokens, model)
 
             # Record stats
-            self.stats.record_request(model, actual_prompt_tokens, completion_tokens, cost, latency_ms)
+            self.stats.record_request(
+                model, actual_prompt_tokens, completion_tokens, cost, latency_ms
+            )
 
             # Log usage
             self.logger.info(
@@ -310,8 +323,8 @@ class LLMClient:
                     "prompt_tokens": actual_prompt_tokens,
                     "completion_tokens": completion_tokens,
                     "cost_usd": round(cost, 6),
-                    "latency_ms": round(latency_ms, 2)
-                }
+                    "latency_ms": round(latency_ms, 2),
+                },
             )
 
             return LLMResponse(
@@ -323,7 +336,7 @@ class LLMClient:
                 cost_usd=cost,
                 latency_ms=latency_ms,
                 finish_reason=response.choices[0].finish_reason,
-                raw_response=response
+                raw_response=response,
             )
 
         except Exception as e:
@@ -338,7 +351,7 @@ class LLMClient:
         model: Optional[str] = None,
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        response_format: Optional[Dict] = None
+        response_format: Optional[Dict] = None,
     ) -> LLMResponse:
         """
         Asynchronous completion with full tracking.
@@ -375,23 +388,33 @@ class LLMClient:
                 try:
                     response = await self._async_client.chat.completions.create(**kwargs)
                     break
-                except (openai.RateLimitError, openai.APIConnectionError, openai.APITimeoutError) as e:
+                except (
+                    openai.RateLimitError,
+                    openai.APIConnectionError,
+                    openai.APITimeoutError,
+                ) as e:
                     self.stats.record_retry()
                     if attempt == max_retries - 1:
                         raise
-                    wait_time = min(4 * (2 ** attempt), 60)
-                    self.logger.warning(f"Retry {attempt + 1}/{max_retries} after {wait_time}s: {e}")
+                    wait_time = min(4 * (2**attempt), 60)
+                    self.logger.warning(
+                        f"Retry {attempt + 1}/{max_retries} after {wait_time}s: {e}"
+                    )
                     await asyncio.sleep(wait_time)
 
             latency_ms = (time.time() - start_time) * 1000
 
             content = response.choices[0].message.content
-            completion_tokens = response.usage.completion_tokens if response.usage else self.count_tokens(content)
+            completion_tokens = (
+                response.usage.completion_tokens if response.usage else self.count_tokens(content)
+            )
             actual_prompt_tokens = response.usage.prompt_tokens if response.usage else prompt_tokens
             total_tokens = actual_prompt_tokens + completion_tokens
             cost = self.estimate_cost(actual_prompt_tokens, completion_tokens, model)
 
-            self.stats.record_request(model, actual_prompt_tokens, completion_tokens, cost, latency_ms)
+            self.stats.record_request(
+                model, actual_prompt_tokens, completion_tokens, cost, latency_ms
+            )
 
             self.logger.info(
                 "Async LLM request completed",
@@ -400,8 +423,8 @@ class LLMClient:
                     "prompt_tokens": actual_prompt_tokens,
                     "completion_tokens": completion_tokens,
                     "cost_usd": round(cost, 6),
-                    "latency_ms": round(latency_ms, 2)
-                }
+                    "latency_ms": round(latency_ms, 2),
+                },
             )
 
             return LLMResponse(
@@ -413,7 +436,7 @@ class LLMClient:
                 cost_usd=cost,
                 latency_ms=latency_ms,
                 finish_reason=response.choices[0].finish_reason,
-                raw_response=response
+                raw_response=response,
             )
 
         except Exception as e:
@@ -422,10 +445,7 @@ class LLMClient:
             raise
 
     def complete_json(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
+        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
     ) -> Dict[str, Any]:
         """
         Completion that returns parsed JSON.
@@ -435,7 +455,7 @@ class LLMClient:
             prompt=prompt,
             system_prompt=system_prompt,
             response_format={"type": "json_object"},
-            **kwargs
+            **kwargs,
         )
 
         try:
@@ -444,24 +464,21 @@ class LLMClient:
             self.logger.warning(f"Failed to parse JSON response: {e}")
             # Try to extract JSON from response
             content = response.content
-            start = content.find('{')
-            end = content.rfind('}') + 1
+            start = content.find("{")
+            end = content.rfind("}") + 1
             if start >= 0 and end > start:
                 return json.loads(content[start:end])
             raise
 
     async def complete_json_async(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
+        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
     ) -> Dict[str, Any]:
         """Async version of complete_json"""
         response = await self.complete_async(
             prompt=prompt,
             system_prompt=system_prompt,
             response_format={"type": "json_object"},
-            **kwargs
+            **kwargs,
         )
 
         try:
@@ -469,8 +486,8 @@ class LLMClient:
         except json.JSONDecodeError as e:
             self.logger.warning(f"Failed to parse JSON response: {e}")
             content = response.content
-            start = content.find('{')
-            end = content.rfind('}') + 1
+            start = content.find("{")
+            end = content.rfind("}") + 1
             if start >= 0 and end > start:
                 return json.loads(content[start:end])
             raise

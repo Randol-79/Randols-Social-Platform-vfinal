@@ -1,22 +1,26 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   // Enable React strict mode for better development
   reactStrictMode: true,
-  
-  // Enable SWC minification
-  swcMinify: true,
+
+  // Turbopack workspace root (silences warnings when multiple lockfiles exist)
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   
   // Output standalone for Docker deployment
   output: 'standalone',
   
-  // Optimize images
+  // Optimize images (use `remotePatterns` in Next 16+)
   images: {
-    domains: [
-      'localhost',
-      'api.randols-marketing.com',
-      'images.unsplash.com',
-      'scontent.cdninstagram.com',
-      'platform-lookaside.fbsbx.com',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'scontent.cdninstagram.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'platform-lookaside.fbsbx.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'api.randols-marketing.com', pathname: '/**' },
+      { protocol: 'http',  hostname: 'localhost', pathname: '/**' }
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
@@ -84,16 +88,8 @@ const nextConfig = {
       : [];
   },
   
-  // Webpack customizations
-  webpack: (config, { dev, isServer }) => {
-    // SVG handling
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack'],
-    });
-    
-    return config;
-  },
+  // Webpack customizations removed for Next 16/Turbopack compatibility.
+  // If you need custom webpack behavior, re-add this when using the webpack bundler.
   
   // Experimental features
   experimental: {
