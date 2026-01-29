@@ -381,7 +381,9 @@ class AnalyticsAgent:
                         "actions": [
                             f"Post more {data.get('best_content_type', 'top')} content on {platform}",
                             f"Optimize posting times for {platform}",
-                            "Increase video content on {platform}" if platform in ["tiktok", "instagram"] else f"Increase engagement with community on {platform}",
+                            "Increase video content on {platform}"
+                            if platform in ["tiktok", "instagram"]
+                            else f"Increase engagement with community on {platform}",
                         ],
                     }
                 )
